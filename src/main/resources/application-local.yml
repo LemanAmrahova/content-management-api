@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/content_management
+    username: user
+    password: password
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
