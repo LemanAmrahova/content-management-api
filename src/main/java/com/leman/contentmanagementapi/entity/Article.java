@@ -29,7 +29,7 @@ public class Article extends BaseEntity {
     private Boolean isActive;
 
     @Column(nullable = false)
-    private Boolean isPublished = false;
+    private Boolean isPublished;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
