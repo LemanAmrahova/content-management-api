@@ -5,6 +5,7 @@ import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.entity.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import java.util.List;
 
 import static org.mapstruct.InjectionStrategy.CONSTRUCTOR;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
@@ -22,5 +23,7 @@ public interface CategoryMapper {
     Category toEntity(CategoryCreateRequest request);
 
     CategoryResponse toResponse(Category entity);
+
+    List<CategoryResponse> toResponse(List<Category> entities);
 
 }

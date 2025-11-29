@@ -8,8 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.List;
+import java.util.Optional;
 
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.*;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -37,6 +40,27 @@ public class CategoryServiceTest {
 
         then(categoryMapper).should().toEntity(CREATE_CATEGORY_REQUEST);
         then(categoryRepository).should().save(CATEGORY_ENTITY);
+        then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+    }
+
+    @Test
+    void findAllCategories_ShouldReturn_Success() {
+        given(categoryRepository.findAll()).willReturn(List.of(CATEGORY_ENTITY));
+        given(categoryMapper.toResponse(List.of(CATEGORY_ENTITY))).willReturn(List.of(CATEGORY_RESPONSE));
+
+        assertThat(categoryService.findAllCategories()).isEqualTo(List.of(CATEGORY_RESPONSE));
+
+        then(categoryRepository).should().findAll();
+    }
+
+    @Test
+    void findCategoryById_ShouldReturn_Success() {
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
+
+        assertThat(categoryService.findCategoryById(ID)).isEqualTo(CATEGORY_RESPONSE);
+
+        then(categoryRepository).should().findById(ID);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
     }
 

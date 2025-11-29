@@ -10,10 +10,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import java.util.List;
 
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CREATE_CATEGORY_REQUEST;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,16 +39,40 @@ public class CategoryControllerTest {
     @Autowired
     private JacksonTester<CategoryResponse> responseTester;
 
+    @Autowired
+    private JacksonTester<List<CategoryResponse>> listResponseTester;
+
     @Test
     void create_ShouldReturn_Success() throws Exception {
 
-        given(categoryService.createCategory(CREATE_CATEGORY_REQUEST))
-                .willReturn(CATEGORY_RESPONSE);
+        given(categoryService.createCategory(CREATE_CATEGORY_REQUEST)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH)
                         .content(createTester.write(CREATE_CATEGORY_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
+                .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+    }
+
+    @Test
+    void getAll_ShouldReturn_Success() throws Exception {
+
+        given(categoryService.findAllCategories()).willReturn(List.of(CATEGORY_RESPONSE));
+
+        mockMvc.perform(get(BASE_PATH)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(listResponseTester.write(List.of(CATEGORY_RESPONSE)).getJson()));
+    }
+
+    @Test
+    void getById_ShouldReturn_Success() throws Exception {
+
+        given(categoryService.findCategoryById(ID)).willReturn(CATEGORY_RESPONSE);
+
+        mockMvc.perform(get(BASE_PATH + "/" + ID)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
     }
 
