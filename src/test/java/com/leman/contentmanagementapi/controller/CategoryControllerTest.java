@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.service.CategoryService;
 import org.junit.jupiter.api.Test;
@@ -14,10 +15,12 @@ import java.util.List;
 
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CREATE_CATEGORY_REQUEST;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.UPDATE_CATEGORY_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +38,9 @@ public class CategoryControllerTest {
 
     @Autowired
     private JacksonTester<CategoryCreateRequest> createTester;
+
+    @Autowired
+    private JacksonTester<CategoryUpdateRequest> updateTester;
 
     @Autowired
     private JacksonTester<CategoryResponse> responseTester;
@@ -71,6 +77,18 @@ public class CategoryControllerTest {
         given(categoryService.findCategoryById(ID)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH + "/" + ID)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+    }
+
+    @Test
+    void update_ShouldReturn_Success() throws Exception {
+
+        given(categoryService.updateCategory(ID, UPDATE_CATEGORY_REQUEST)).willReturn(CATEGORY_RESPONSE);
+
+        mockMvc.perform(put(BASE_PATH + "/" + ID)
+                        .content(updateTester.write(UPDATE_CATEGORY_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));

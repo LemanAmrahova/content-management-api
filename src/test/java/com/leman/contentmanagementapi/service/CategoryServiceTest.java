@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.service;
 
+import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.*;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static com.leman.contentmanagementapi.constant.TestConstant.NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -61,6 +63,23 @@ public class CategoryServiceTest {
         assertThat(categoryService.findCategoryById(ID)).isEqualTo(CATEGORY_RESPONSE);
 
         then(categoryRepository).should().findById(ID);
+        then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+    }
+
+    @Test
+    void updateCategory_ShouldUpdateAndReturnResponse() {
+        CategoryUpdateRequest request = CategoryUpdateRequest.builder().name(NAME).build();
+
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        given(categoryRepository.save(CATEGORY_ENTITY)).willReturn(CATEGORY_ENTITY);
+        given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
+
+        CategoryResponse result = categoryService.updateCategory(ID, request);
+        assertThat(result).isEqualTo(CATEGORY_RESPONSE);
+        assertThat(CATEGORY_ENTITY.getName()).isEqualTo(NAME);
+
+        then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should().save(CATEGORY_ENTITY);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
     }
 

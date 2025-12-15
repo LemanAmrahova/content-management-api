@@ -26,7 +26,7 @@ public class Article extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private Boolean isActive;
+    private Boolean active;
 
     @Column(nullable = false)
     private Boolean isPublished;

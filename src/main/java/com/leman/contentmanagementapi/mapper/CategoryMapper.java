@@ -19,7 +19,7 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
 )
 public interface CategoryMapper {
 
-    @Mapping(target = "isActive", constant = "true")
+    @Mapping(target = "active", constant = "true")
     Category toEntity(CategoryCreateRequest request);
 
     CategoryResponse toResponse(Category entity);
