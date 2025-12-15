@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.service.CategoryService;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +40,11 @@ public class CategoryController {
     @GetMapping("{id}")
     public ResponseEntity<CategoryResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.findCategoryById(id));
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody CategoryUpdateRequest request) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
 }
