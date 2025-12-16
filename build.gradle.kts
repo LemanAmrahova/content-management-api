@@ -1,7 +1,10 @@
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+
 plugins {
     java
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
+    id("jacoco")
 }
 
 group = "com.leman"
@@ -12,6 +15,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+extensions.configure<JacocoPluginExtension> {
+    toolVersion = "0.8.11"
 }
 
 configurations {
