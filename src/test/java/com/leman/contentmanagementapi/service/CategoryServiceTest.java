@@ -18,6 +18,7 @@ import static com.leman.contentmanagementapi.constant.TestConstant.NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceTest {
@@ -81,6 +82,18 @@ public class CategoryServiceTest {
         then(categoryRepository).should().findById(ID);
         then(categoryRepository).should().save(CATEGORY_ENTITY);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+    }
+
+    @Test
+    void delete_ShouldReturn_Success() {
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        willDoNothing().given(categoryRepository).deactivateById(ID);
+
+        categoryService.deleteCategory(ID);
+
+        then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should().deactivateById(ID);
+        then(categoryRepository).shouldHaveNoMoreInteractions();
     }
 
 }
