@@ -18,6 +18,8 @@ import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CREAT
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.UPDATE_CATEGORY_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -92,6 +94,17 @@ public class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+    }
+
+    @Test
+    void delete_ShouldReturn_Success() throws Exception {
+
+        willDoNothing().given(categoryService).deleteCategory(ID);
+
+        mockMvc.perform(delete(BASE_PATH + "/" + ID)
+                        .contentType("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
     }
 
 }

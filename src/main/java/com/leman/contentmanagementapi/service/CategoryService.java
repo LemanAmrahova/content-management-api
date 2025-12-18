@@ -7,6 +7,7 @@ import com.leman.contentmanagementapi.entity.Category;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryService {
 
     private final CategoryMapper categoryMapper;
@@ -46,6 +48,14 @@ public class CategoryService {
 
         log.info("Category updated successfully with ID: {}", id);
         return categoryMapper.toResponse(updated);
+    }
+
+    @Transactional
+    public void deleteCategory(Long id) {
+        categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+
+        categoryRepository.deactivateById(id);
+        log.info("Category soft deleted successfully with ID: {}", id);
     }
 
 }
