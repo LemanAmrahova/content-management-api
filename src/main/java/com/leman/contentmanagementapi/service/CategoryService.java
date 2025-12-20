@@ -4,6 +4,7 @@ import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.entity.Category;
+import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
@@ -24,6 +25,10 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public CategoryResponse createCategory(@Valid CategoryCreateRequest request) {
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new DuplicateResourceException("Category", "name", request.getName());
+        }
+
         Category entity = categoryMapper.toEntity(request);
         Category saved = categoryRepository.save(entity);
 

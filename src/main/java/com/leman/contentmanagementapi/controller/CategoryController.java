@@ -5,6 +5,7 @@ import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.service.CategoryService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,17 +40,18 @@ public class CategoryController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CategoryResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> getById(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(categoryService.findCategoryById(id));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @RequestBody CategoryUpdateRequest request) {
+    public ResponseEntity<CategoryResponse> update(@PathVariable @Positive Long id,
+                                                   @RequestBody CategoryUpdateRequest request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
