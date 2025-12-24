@@ -62,22 +62,22 @@ public class CategoryServiceTest {
 
     @Test
     void findAllCategories_ShouldReturn_Success() {
-        given(categoryRepository.findAll()).willReturn(List.of(CATEGORY_ENTITY));
+        given(categoryRepository.findAllByActiveTrue()).willReturn(List.of(CATEGORY_ENTITY));
         given(categoryMapper.toResponse(List.of(CATEGORY_ENTITY))).willReturn(List.of(CATEGORY_RESPONSE));
 
         assertThat(categoryService.findAllCategories()).isEqualTo(List.of(CATEGORY_RESPONSE));
 
-        then(categoryRepository).should().findAll();
+        then(categoryRepository).should().findAllByActiveTrue();
     }
 
     @Test
     void findCategoryById_ShouldReturn_Success() {
-        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
         given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
 
         assertThat(categoryService.findCategoryById(ID)).isEqualTo(CATEGORY_RESPONSE);
 
-        then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should().findByIdAndActiveTrue(ID);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
     }
 
