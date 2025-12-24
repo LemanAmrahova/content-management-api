@@ -37,11 +37,11 @@ public class CategoryService {
     }
 
     public List<CategoryResponse> findAllCategories() {
-        return categoryMapper.toResponse(categoryRepository.findAll());
+        return categoryMapper.toResponse(categoryRepository.findAllByActiveTrue());
     }
 
     public CategoryResponse findCategoryById(Long id) {
-        return categoryRepository.findById(id).map(categoryMapper::toResponse)
+        return categoryRepository.findByIdAndActiveTrue(id).map(categoryMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
