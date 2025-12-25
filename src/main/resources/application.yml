@@ -19,3 +19,4 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: DEBUG
+    com.leman.contentmanagementapi: DEBUG
