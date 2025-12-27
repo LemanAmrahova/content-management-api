@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.service;
 
+import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
@@ -13,14 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.*;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static com.leman.contentmanagementapi.constant.TestConstant.NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.BDDMockito.willDoNothing;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceTest {
@@ -37,14 +39,14 @@ public class CategoryServiceTest {
     @Test
     void createCategory_ShouldReturn_Success() {
         given(categoryRepository.existsByName(NAME)).willReturn(false);
-        given(categoryMapper.toEntity(CREATE_CATEGORY_REQUEST)).willReturn(CATEGORY_ENTITY);
+        given(categoryMapper.toEntity(CATEGORY_CREATE_REQUEST)).willReturn(CATEGORY_ENTITY);
         given(categoryRepository.save(CATEGORY_ENTITY)).willReturn(CATEGORY_ENTITY);
         given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
 
-        CategoryResponse result = categoryService.createCategory(CREATE_CATEGORY_REQUEST);
+        CategoryResponse result = categoryService.createCategory(CATEGORY_CREATE_REQUEST);
         assertThat(result).isEqualTo(CATEGORY_RESPONSE);
 
-        then(categoryMapper).should().toEntity(CREATE_CATEGORY_REQUEST);
+        then(categoryMapper).should().toEntity(CATEGORY_CREATE_REQUEST);
         then(categoryRepository).should().save(CATEGORY_ENTITY);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
     }
@@ -53,7 +55,7 @@ public class CategoryServiceTest {
     void createCategory_ShouldThrow_DuplicateResourceException() {
         given(categoryRepository.existsByName(NAME)).willReturn(true);
 
-        assertThatThrownBy(() -> categoryService.createCategory(CREATE_CATEGORY_REQUEST))
+        assertThatThrownBy(() -> categoryService.createCategory(CATEGORY_CREATE_REQUEST))
                 .isInstanceOf(DuplicateResourceException.class);
 
         then(categoryRepository).should().existsByName(NAME);
@@ -86,7 +88,6 @@ public class CategoryServiceTest {
         CategoryUpdateRequest request = CategoryUpdateRequest.builder().name(NAME).build();
 
         given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
-        given(categoryRepository.save(CATEGORY_ENTITY)).willReturn(CATEGORY_ENTITY);
         given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
 
         CategoryResponse result = categoryService.updateCategory(ID, request);
@@ -94,19 +95,16 @@ public class CategoryServiceTest {
         assertThat(CATEGORY_ENTITY.getName()).isEqualTo(NAME);
 
         then(categoryRepository).should().findById(ID);
-        then(categoryRepository).should().save(CATEGORY_ENTITY);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
     }
 
     @Test
-    void delete_ShouldReturn_Success() {
+    void changeCategoryStatus_ShouldReturn_Success() {
         given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
-        willDoNothing().given(categoryRepository).deactivateById(ID);
 
-        categoryService.deleteCategory(ID);
+        categoryService.changeCategoryStatus(ID, CategoryStatusChangeRequest.builder().active(false).build());
 
         then(categoryRepository).should().findById(ID);
-        then(categoryRepository).should().deactivateById(ID);
         then(categoryRepository).shouldHaveNoMoreInteractions();
     }
 

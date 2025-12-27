@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.entity.Category;
@@ -8,31 +9,31 @@ import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CategoryService {
 
     private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     public CategoryResponse createCategory(@Valid CategoryCreateRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateResourceException("Category", "name", request.getName());
         }
 
-        Category entity = categoryMapper.toEntity(request);
-        Category saved = categoryRepository.save(entity);
-
+        Category saved = categoryRepository.save(categoryMapper.toEntity(request));
         log.info("Category created successfully with ID: {}", saved.getId());
+
         return categoryMapper.toResponse(saved);
     }
 
@@ -45,22 +46,24 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
     }
 
+    @Transactional
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
         Category category =  categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
-        category.setName(request.getName());
-        Category updated = categoryRepository.save(category);
 
+        category.setName(request.getName());
         log.info("Category updated successfully with ID: {}", id);
-        return categoryMapper.toResponse(updated);
+
+        return categoryMapper.toResponse(category);
     }
 
     @Transactional
-    public void deleteCategory(Long id) {
-        categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+    public void changeCategoryStatus(Long id, CategoryStatusChangeRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
 
-        categoryRepository.deactivateById(id);
-        log.info("Category soft deleted successfully with ID: {}", id);
+        category.setActive(request.getActive());
+        log.info("Category status changed successfully with ID: {}", id);
     }
 
 }
