@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.service.CategoryService;
@@ -13,14 +14,15 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CREATE_CATEGORY_REQUEST;
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.UPDATE_CATEGORY_REQUEST;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_STATUS_CHANGE_REQUEST;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,6 +47,9 @@ public class CategoryControllerTest {
     private JacksonTester<CategoryUpdateRequest> updateTester;
 
     @Autowired
+    private JacksonTester<CategoryStatusChangeRequest> changeStatusTester;
+
+    @Autowired
     private JacksonTester<CategoryResponse> responseTester;
 
     @Autowired
@@ -53,10 +58,10 @@ public class CategoryControllerTest {
     @Test
     void create_ShouldReturn_Success() throws Exception {
 
-        given(categoryService.createCategory(CREATE_CATEGORY_REQUEST)).willReturn(CATEGORY_RESPONSE);
+        given(categoryService.createCategory(CATEGORY_CREATE_REQUEST)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH)
-                        .content(createTester.write(CREATE_CATEGORY_REQUEST).getJson())
+                        .content(createTester.write(CATEGORY_CREATE_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
@@ -87,21 +92,22 @@ public class CategoryControllerTest {
     @Test
     void update_ShouldReturn_Success() throws Exception {
 
-        given(categoryService.updateCategory(ID, UPDATE_CATEGORY_REQUEST)).willReturn(CATEGORY_RESPONSE);
+        given(categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(put(BASE_PATH + "/" + ID)
-                        .content(updateTester.write(UPDATE_CATEGORY_REQUEST).getJson())
+                        .content(updateTester.write(CATEGORY_UPDATE_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
     }
 
     @Test
-    void delete_ShouldReturn_Success() throws Exception {
+    void changeStatus_ShouldReturn_Success() throws Exception {
 
-        willDoNothing().given(categoryService).deleteCategory(ID);
+        willDoNothing().given(categoryService).changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
 
-        mockMvc.perform(delete(BASE_PATH + "/" + ID)
+        mockMvc.perform(patch(BASE_PATH + "/" + ID + "/status")
+                        .content(changeStatusTester.write(CATEGORY_STATUS_CHANGE_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
