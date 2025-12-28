@@ -22,8 +22,8 @@ public interface CategoryMapper {
     @Mapping(target = "active", constant = "true")
     Category toEntity(CategoryCreateRequest request);
 
-    CategoryResponse toResponse(Category entity);
+    CategoryResponse toResponse(Category category);
 
-    List<CategoryResponse> toResponse(List<Category> entities);
+    List<CategoryResponse> toResponse(List<Category> categories);
 
 }

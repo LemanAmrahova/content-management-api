@@ -57,7 +57,6 @@ public class CategoryControllerTest {
 
     @Test
     void create_ShouldReturn_Success() throws Exception {
-
         given(categoryService.createCategory(CATEGORY_CREATE_REQUEST)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH)
@@ -69,7 +68,6 @@ public class CategoryControllerTest {
 
     @Test
     void getAll_ShouldReturn_Success() throws Exception {
-
         given(categoryService.findAllCategories()).willReturn(List.of(CATEGORY_RESPONSE));
 
         mockMvc.perform(get(BASE_PATH)
@@ -80,7 +78,6 @@ public class CategoryControllerTest {
 
     @Test
     void getById_ShouldReturn_Success() throws Exception {
-
         given(categoryService.findCategoryById(ID)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH + "/" + ID)
@@ -91,7 +88,6 @@ public class CategoryControllerTest {
 
     @Test
     void update_ShouldReturn_Success() throws Exception {
-
         given(categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST)).willReturn(CATEGORY_RESPONSE);
 
         mockMvc.perform(put(BASE_PATH + "/" + ID)
@@ -103,7 +99,6 @@ public class CategoryControllerTest {
 
     @Test
     void changeStatus_ShouldReturn_Success() throws Exception {
-
         willDoNothing().given(categoryService).changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/status")

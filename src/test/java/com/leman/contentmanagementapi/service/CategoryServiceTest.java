@@ -14,11 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.NAME;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
-import static com.leman.contentmanagementapi.constant.TestConstant.NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;

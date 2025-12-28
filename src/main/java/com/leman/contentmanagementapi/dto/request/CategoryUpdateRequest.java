@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CategoryUpdateRequest {
 
-    @NotBlank()
+    @NotBlank
     private String name;
 
 }
