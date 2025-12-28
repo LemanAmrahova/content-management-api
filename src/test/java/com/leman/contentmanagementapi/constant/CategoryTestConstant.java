@@ -8,12 +8,13 @@ import com.leman.contentmanagementapi.entity.Category;
 
 import static com.leman.contentmanagementapi.constant.TestConstant.ACTIVE;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
-import static com.leman.contentmanagementapi.constant.TestConstant.NAME;
 
 public final class CategoryTestConstant {
 
     private CategoryTestConstant() {
     }
+
+    public static final String NAME = "NAME";
 
     public static final CategoryCreateRequest CATEGORY_CREATE_REQUEST = CategoryCreateRequest.builder()
             .name(NAME)
@@ -37,6 +38,7 @@ public final class CategoryTestConstant {
     public static final CategoryResponse CATEGORY_RESPONSE = CategoryResponse.builder()
             .id(ID)
             .name(NAME)
+            .active(ACTIVE)
             .build();
 
 }

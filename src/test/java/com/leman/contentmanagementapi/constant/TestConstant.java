@@ -6,7 +6,6 @@ public final class TestConstant {
     }
 
     public static final Long ID = 1L;
-    public static final String NAME = "NAME";
     public static final Boolean ACTIVE = true;
 
 }
