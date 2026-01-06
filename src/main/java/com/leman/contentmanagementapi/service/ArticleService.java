@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
@@ -33,6 +34,11 @@ public class ArticleService {
         log.info("Article created successfully with ID: {}", saved.getId());
 
         return articleMapper.toResponse(saved);
+    }
+
+    public ArticleDetailResponse findArticleById(Long id) {
+        return articleRepository.findByIdAndActiveWithCategory(id).map(articleMapper::toDetailResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
     }
 
 }

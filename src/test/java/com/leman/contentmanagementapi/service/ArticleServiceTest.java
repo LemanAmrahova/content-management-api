@@ -2,6 +2,7 @@ package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
+import com.leman.contentmanagementapi.projection.ArticleDetailProjection;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_ENTITY;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceTest {
@@ -49,6 +53,18 @@ public class ArticleServiceTest {
         then(articleMapper).should().toEntity(ARTICLE_CREATE_REQUEST);
         then(articleRepository).should().save(ARTICLE_ENTITY);
         then(articleMapper).should().toResponse(ARTICLE_ENTITY);
+    }
+
+    @Test
+    void findArticleById_ShouldReturn_Success() throws Exception {
+        ArticleDetailProjection projection = mock(ArticleDetailProjection.class);
+
+        given(articleRepository.findByIdAndActiveWithCategory(ID)).willReturn(Optional.of(projection));
+        given(articleMapper.toDetailResponse(projection)).willReturn(ARTICLE_DETAIL_RESPONSE);
+
+        assertThat(articleService.findArticleById(ID)).isEqualTo(ARTICLE_DETAIL_RESPONSE);
+
+        then(articleRepository).should().findByIdAndActiveWithCategory(ID);
     }
 
 }
