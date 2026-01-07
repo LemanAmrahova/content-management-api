@@ -1,8 +1,10 @@
 package com.leman.contentmanagementapi.mapper;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.entity.Article;
+import com.leman.contentmanagementapi.projection.ArticleDetailProjection;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,6 +27,8 @@ public interface ArticleMapper {
 
     @Mapping(target = "categoryId", source = "category.id")
     ArticleResponse toResponse(Article article);
+
+    ArticleDetailResponse toDetailResponse(ArticleDetailProjection projection);
 
     @AfterMapping
     default void setDefaults(@MappingTarget Article article) {

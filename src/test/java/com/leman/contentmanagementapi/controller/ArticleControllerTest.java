@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.service.ArticleService;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,6 +40,9 @@ public class ArticleControllerTest {
     @Autowired
     private JacksonTester<ArticleResponse> responseTester;
 
+    @Autowired
+    private JacksonTester<ArticleDetailResponse> detailResponseTester;
+
     @Test
     void create_ShouldReturn_Success() throws Exception {
         given(articleService.createArticle(ARTICLE_CREATE_REQUEST)).willReturn(ARTICLE_RESPONSE);
@@ -45,6 +52,16 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
+    }
+
+    @Test
+    void getById_ShouldReturn_Success() throws Exception {
+        given(articleService.findArticleById(ID)).willReturn(ARTICLE_DETAIL_RESPONSE);
+
+        mockMvc.perform(get(BASE_PATH + "/" + ID)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(detailResponseTester.write(ARTICLE_DETAIL_RESPONSE).getJson()));
     }
 
 }
