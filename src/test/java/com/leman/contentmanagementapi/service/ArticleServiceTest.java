@@ -16,6 +16,7 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_ENTITY;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,20 @@ public class ArticleServiceTest {
         assertThat(articleService.findArticleById(ID)).isEqualTo(ARTICLE_DETAIL_RESPONSE);
 
         then(articleRepository).should().findByIdAndActiveWithCategory(ID);
+    }
+
+    @Test
+    void updateArticle_ShouldReturn_Success() throws Exception {
+        given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(ARTICLE_ENTITY));
+        given(categoryRepository.findByIdAndActiveTrue(ARTICLE_UPDATE_REQUEST.getCategoryId()))
+                .willReturn(Optional.of(CATEGORY_ENTITY));
+        given(articleMapper.toResponse(ARTICLE_ENTITY)).willReturn(ARTICLE_RESPONSE);
+
+        assertThat(articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST)).isEqualTo(ARTICLE_RESPONSE);
+
+        then(articleRepository).should().findByIdAndActiveTrue(ID);
+        then(categoryRepository).should().findByIdAndActiveTrue(ARTICLE_CREATE_REQUEST.getCategoryId());
+        then(articleMapper).should().toResponse(ARTICLE_ENTITY);
     }
 
 }

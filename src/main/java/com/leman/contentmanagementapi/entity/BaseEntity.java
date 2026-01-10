@@ -11,6 +11,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,6 +31,7 @@ public class BaseEntity {
 
     @Column(nullable = false)
     @UpdateTimestamp
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
 }
