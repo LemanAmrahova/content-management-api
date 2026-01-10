@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.service.ArticleService;
@@ -15,10 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,6 +39,9 @@ public class ArticleControllerTest {
 
     @Autowired
     private JacksonTester<ArticleCreateRequest> createTester;
+
+    @Autowired
+    private JacksonTester<ArticleUpdateRequest> updateTester;
 
     @Autowired
     private JacksonTester<ArticleResponse> responseTester;
@@ -62,6 +68,17 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(detailResponseTester.write(ARTICLE_DETAIL_RESPONSE).getJson()));
+    }
+
+    @Test
+    void update_shouldReturn_Success() throws Exception {
+        given(articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST)).willReturn(ARTICLE_RESPONSE);
+
+        mockMvc.perform(put(BASE_PATH + "/" + ID)
+                        .content(updateTester.write(ARTICLE_UPDATE_REQUEST).getJson())
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
     }
 
 }

@@ -1,9 +1,11 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.entity.Article;
+import com.leman.contentmanagementapi.entity.Category;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
@@ -25,7 +27,7 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponse createArticle(ArticleCreateRequest request) {
-        var category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
+        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
 
         Article entity = articleMapper.toEntity(request);
@@ -39,6 +41,22 @@ public class ArticleService {
     public ArticleDetailResponse findArticleById(Long id) {
         return articleRepository.findByIdAndActiveWithCategory(id).map(articleMapper::toDetailResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+    }
+
+    @Transactional
+    public ArticleResponse updateArticle(Long id, ArticleUpdateRequest request) {
+        Article article = articleRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+
+        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
+
+        article.setTitle(request.getTitle());
+        article.setContent(request.getContent());
+        article.setCategory(category);
+        log.info("Article updated successfully with ID: {}", id);
+
+        return articleMapper.toResponse(article);
     }
 
 }

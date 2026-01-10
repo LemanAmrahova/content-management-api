@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.constant;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.entity.Article;
@@ -21,6 +22,12 @@ public final class ArticleTestConstant {
     public static final Boolean PUBLISHED = false;
 
     public static final ArticleCreateRequest ARTICLE_CREATE_REQUEST = ArticleCreateRequest.builder()
+            .title(TITLE)
+            .content(CONTENT)
+            .categoryId(CATEGORY_ID)
+            .build();
+
+    public static final ArticleUpdateRequest ARTICLE_UPDATE_REQUEST = ArticleUpdateRequest.builder()
             .title(TITLE)
             .content(CONTENT)
             .categoryId(CATEGORY_ID)
