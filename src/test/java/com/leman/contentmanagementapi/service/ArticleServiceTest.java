@@ -40,7 +40,7 @@ public class ArticleServiceTest {
     ArticleService articleService;
 
     @Test
-    void createArticle_ShouldReturn_Success() throws Exception {
+    void createArticle_ShouldReturn_Success() {
         given(categoryRepository.findByIdAndActiveTrue(ARTICLE_CREATE_REQUEST.getCategoryId()))
                 .willReturn(Optional.of(CATEGORY_ENTITY));
         given(articleMapper.toEntity(ARTICLE_CREATE_REQUEST)).willReturn(ARTICLE_ENTITY);
@@ -57,7 +57,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    void findArticleById_ShouldReturn_Success() throws Exception {
+    void findArticleById_ShouldReturn_Success() {
         ArticleDetailProjection projection = mock(ArticleDetailProjection.class);
 
         given(articleRepository.findByIdAndActiveWithCategory(ID)).willReturn(Optional.of(projection));
@@ -69,7 +69,7 @@ public class ArticleServiceTest {
     }
 
     @Test
-    void updateArticle_ShouldReturn_Success() throws Exception {
+    void updateArticle_ShouldReturn_Success() {
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(ARTICLE_ENTITY));
         given(categoryRepository.findByIdAndActiveTrue(ARTICLE_UPDATE_REQUEST.getCategoryId()))
                 .willReturn(Optional.of(CATEGORY_ENTITY));
