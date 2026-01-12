@@ -51,6 +51,10 @@ public class CategoryService {
         Category category =  categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
 
+        if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Category", "name", request.getName());
+        }
+
         category.setName(request.getName());
         log.info("Category updated successfully with ID: {}", id);
 

@@ -1,7 +1,6 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
-import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.CategoryResponse;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
@@ -17,7 +16,7 @@ import java.util.Optional;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.NAME;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -38,7 +37,7 @@ public class CategoryServiceTest {
 
     @Test
     void createCategory_ShouldReturn_Success() {
-        given(categoryRepository.existsByName(NAME)).willReturn(false);
+        given(categoryRepository.existsByName(CATEGORY_CREATE_REQUEST.getName())).willReturn(false);
         given(categoryMapper.toEntity(CATEGORY_CREATE_REQUEST)).willReturn(CATEGORY_ENTITY);
         given(categoryRepository.save(CATEGORY_ENTITY)).willReturn(CATEGORY_ENTITY);
         given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
@@ -53,12 +52,12 @@ public class CategoryServiceTest {
 
     @Test
     void createCategory_ShouldThrow_DuplicateResourceException() {
-        given(categoryRepository.existsByName(NAME)).willReturn(true);
+        given(categoryRepository.existsByName(CATEGORY_CREATE_REQUEST.getName())).willReturn(true);
 
         assertThatThrownBy(() -> categoryService.createCategory(CATEGORY_CREATE_REQUEST))
                 .isInstanceOf(DuplicateResourceException.class);
 
-        then(categoryRepository).should().existsByName(NAME);
+        then(categoryRepository).should().existsByName(CATEGORY_CREATE_REQUEST.getName());
         then(categoryRepository).shouldHaveNoMoreInteractions();
     }
 
@@ -84,18 +83,29 @@ public class CategoryServiceTest {
     }
 
     @Test
-    void updateCategory_ShouldUpdateAndReturnResponse() {
-        CategoryUpdateRequest request = CategoryUpdateRequest.builder().name(NAME).build();
-
+    void updateCategory_ShouldReturnResponse() {
         given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        given(categoryRepository.existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID)).willReturn(false);
         given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
 
-        CategoryResponse result = categoryService.updateCategory(ID, request);
-        assertThat(result).isEqualTo(CATEGORY_RESPONSE);
-        assertThat(CATEGORY_ENTITY.getName()).isEqualTo(NAME);
+        assertThat(categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST)).isEqualTo(CATEGORY_RESPONSE);
 
         then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should().existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
         then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+    }
+
+    @Test
+    void updateCategory_ShouldThrow_DuplicateResourceException() {
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+        given(categoryRepository.existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID)).willReturn(true);
+
+        assertThatThrownBy(() -> categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST))
+                .isInstanceOf(DuplicateResourceException.class);
+
+        then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should().existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
+        then(categoryMapper).shouldHaveNoInteractions();
     }
 
     @Test
