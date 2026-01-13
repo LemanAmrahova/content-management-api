@@ -59,4 +59,13 @@ public class ArticleService {
         return articleMapper.toResponse(article);
     }
 
+    @Transactional
+    public void deleteArticle(Long id) {
+        Article article = articleRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+
+        article.setActive(false);
+        log.info("Article deleted successfully with ID: {}", id);
+    }
+
 }

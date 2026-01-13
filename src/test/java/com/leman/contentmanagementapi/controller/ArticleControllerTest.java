@@ -19,6 +19,8 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -79,6 +81,16 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
+    }
+
+    @Test
+    void delete_shouldReturn_Success() throws Exception {
+        willDoNothing().given(articleService).deleteArticle(ID);
+
+        mockMvc.perform(delete(BASE_PATH + "/" + ID)
+                        .content("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
     }
 
 }
