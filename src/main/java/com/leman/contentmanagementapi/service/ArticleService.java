@@ -60,6 +60,15 @@ public class ArticleService {
     }
 
     @Transactional
+    public void publishArticle(Long id) {
+        Article article = articleRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+
+        article.setPublished(true);
+        log.info("Article published successfully with ID: {}", id);
+    }
+
+    @Transactional
     public void deleteArticle(Long id) {
         Article article = articleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,6 +44,13 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> update(@PathVariable @Positive Long id,
                                                   @RequestBody @Valid ArticleUpdateRequest request) {
         return ResponseEntity.ok(articleService.updateArticle(id, request));
+    }
+
+    @PatchMapping("{id}/publish")
+    public ResponseEntity<Void> publish(@PathVariable @Positive Long id) {
+        articleService.publishArticle(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("{id}")

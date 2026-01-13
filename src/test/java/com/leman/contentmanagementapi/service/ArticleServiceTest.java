@@ -86,6 +86,17 @@ public class ArticleServiceTest {
     }
 
     @Test
+    void publishArticle_ShouldReturn_Success() {
+        given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(ARTICLE_ENTITY));
+
+        articleService.publishArticle(ID);
+        assertThat(ARTICLE_ENTITY.getPublished()).isEqualTo(true);
+
+        then(articleRepository).should().findByIdAndActiveTrue(ID);
+        then(articleRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
     void deleteArticle_ShouldReturn_Success() {
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(ARTICLE_ENTITY));
 

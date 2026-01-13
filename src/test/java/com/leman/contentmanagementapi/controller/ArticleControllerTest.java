@@ -22,6 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -81,6 +82,16 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
+    }
+
+    @Test
+    void publish_shouldReturn_Success() throws Exception {
+        willDoNothing().given(articleService).publishArticle(ID);
+
+        mockMvc.perform(patch(BASE_PATH + "/" + ID + "/publish")
+                        .content("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
     }
 
     @Test
