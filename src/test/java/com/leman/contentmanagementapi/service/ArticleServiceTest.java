@@ -76,10 +76,24 @@ public class ArticleServiceTest {
         given(articleMapper.toResponse(ARTICLE_ENTITY)).willReturn(ARTICLE_RESPONSE);
 
         assertThat(articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST)).isEqualTo(ARTICLE_RESPONSE);
+        assertThat(ARTICLE_ENTITY.getTitle()).isEqualTo(ARTICLE_UPDATE_REQUEST.getTitle());
+        assertThat(ARTICLE_ENTITY.getContent()).isEqualTo(ARTICLE_UPDATE_REQUEST.getContent());
+        assertThat(ARTICLE_ENTITY.getCategory()).isEqualTo(CATEGORY_ENTITY);
 
         then(articleRepository).should().findByIdAndActiveTrue(ID);
         then(categoryRepository).should().findByIdAndActiveTrue(ARTICLE_CREATE_REQUEST.getCategoryId());
         then(articleMapper).should().toResponse(ARTICLE_ENTITY);
+    }
+
+    @Test
+    void deleteArticle_ShouldReturn_Success() {
+        given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(ARTICLE_ENTITY));
+
+        articleService.deleteArticle(ID);
+        assertThat(ARTICLE_ENTITY.getActive()).isEqualTo(false);
+
+        then(articleRepository).should().findByIdAndActiveTrue(ID);
+        then(articleRepository).shouldHaveNoMoreInteractions();
     }
 
 }

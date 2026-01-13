@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,13 @@ public class ArticleController {
     public ResponseEntity<ArticleResponse> update(@PathVariable @Positive Long id,
                                                   @RequestBody @Valid ArticleUpdateRequest request) {
         return ResponseEntity.ok(articleService.updateArticle(id, request));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
+        articleService.deleteArticle(id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
