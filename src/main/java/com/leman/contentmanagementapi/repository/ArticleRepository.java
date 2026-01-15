@@ -3,12 +3,13 @@ package com.leman.contentmanagementapi.repository;
 import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.projection.ArticleDetailProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Long> {
+public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpecificationExecutor<Article> {
 
     @Query("""
         select
