@@ -1,9 +1,11 @@
 package com.leman.contentmanagementapi.controller;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
+import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.service.ArticleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -33,6 +35,11 @@ public class ArticleController {
     @PostMapping
     public ResponseEntity<ArticleResponse> create(@RequestBody @Valid ArticleCreateRequest request) {
         return ResponseEntity.status(CREATED).body(articleService.createArticle(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<PageableResponse<ArticleDetailResponse>> getAll(ArticleFilterRequest request) {
+        return ResponseEntity.ok(articleService.findAllArticles(request));
     }
 
     @GetMapping("{id}")

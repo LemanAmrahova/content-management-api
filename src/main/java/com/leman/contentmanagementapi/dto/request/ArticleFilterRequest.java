@@ -3,15 +3,17 @@ package com.leman.contentmanagementapi.dto.request;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleFilterRequest {
+@EqualsAndHashCode(callSuper = true)
+public class ArticleFilterRequest extends PageableRequest {
 
     @Size(min = 2, max = 100)
     private String title;
