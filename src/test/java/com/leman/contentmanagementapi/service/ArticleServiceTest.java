@@ -1,6 +1,9 @@
 package com.leman.contentmanagementapi.service;
 
+import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
+import com.leman.contentmanagementapi.dto.response.PageableResponse;
+import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.projection.ArticleDetailProjection;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
@@ -10,16 +13,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import java.util.Optional;
 
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_ENTITY;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_FILTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -54,6 +63,20 @@ public class ArticleServiceTest {
         then(articleMapper).should().toEntity(ARTICLE_CREATE_REQUEST);
         then(articleRepository).should().save(ARTICLE_ENTITY);
         then(articleMapper).should().toResponse(ARTICLE_ENTITY);
+    }
+
+    @Test
+    void findAllArticles_ShouldReturn_Success() {
+        Page<Article> articlePage = mock(Page.class);
+
+        given(articleRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(articlePage);
+        given(articleMapper.toResponse(articlePage)).willReturn(PAGEABLE_ARTICLE_RESPONSE);
+
+        PageableResponse<ArticleDetailResponse> result = articleService.findAllArticles(ARTICLE_FILTER_REQUEST);
+        assertThat(result).isEqualTo(PAGEABLE_ARTICLE_RESPONSE);
+
+        then(articleRepository).should().findAll(any(Specification.class), any(Pageable.class));
+        then(articleMapper).should().toResponse(articlePage);
     }
 
     @Test

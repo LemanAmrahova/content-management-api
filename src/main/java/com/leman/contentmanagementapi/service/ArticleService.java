@@ -1,17 +1,23 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
+import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
+import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.entity.Category;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
+import com.leman.contentmanagementapi.specification.ArticleSpecification;
+import com.leman.contentmanagementapi.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +42,13 @@ public class ArticleService {
         log.info("Article created successfully with ID: {}", saved.getId());
 
         return articleMapper.toResponse(saved);
+    }
+
+    public PageableResponse<ArticleDetailResponse> findAllArticles(ArticleFilterRequest request) {
+        Pageable pageable = PaginationUtil.createPageable(request);
+        Specification<Article> articleSpecification = ArticleSpecification.getSpecification(request);
+
+        return articleMapper.toResponse(articleRepository.findAll(articleSpecification, pageable));
     }
 
     public ArticleDetailResponse findArticleById(Long id) {
