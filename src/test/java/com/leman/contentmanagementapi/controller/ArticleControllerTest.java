@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.controller;
 
+import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
@@ -10,7 +11,6 @@ import com.leman.contentmanagementapi.service.ArticleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,8 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExcludeSecurityWebMvcTest(controllers = ArticleController.class)
 @AutoConfigureJsonTesters
-@WebMvcTest(ArticleController.class)
 public class ArticleControllerTest {
 
     private static final String BASE_PATH = "/api/v1/articles";
@@ -74,7 +74,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    void getAll_shouldReturn_Success() throws Exception {
+    void getAll_ShouldReturn_Success() throws Exception {
         given(articleService.findAllArticles(ARTICLE_FILTER_REQUEST)).willReturn(PAGEABLE_ARTICLE_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH)
@@ -102,7 +102,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    void update_shouldReturn_Success() throws Exception {
+    void update_ShouldReturn_Success() throws Exception {
         given(articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST)).willReturn(ARTICLE_RESPONSE);
 
         mockMvc.perform(put(BASE_PATH + "/" + ID)
@@ -113,7 +113,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    void publish_shouldReturn_Success() throws Exception {
+    void publish_ShouldReturn_Success() throws Exception {
         willDoNothing().given(articleService).publishArticle(ID);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/publish")
@@ -123,7 +123,7 @@ public class ArticleControllerTest {
     }
 
     @Test
-    void delete_shouldReturn_Success() throws Exception {
+    void delete_ShouldReturn_Success() throws Exception {
         willDoNothing().given(articleService).deleteArticle(ID);
 
         mockMvc.perform(delete(BASE_PATH + "/" + ID)

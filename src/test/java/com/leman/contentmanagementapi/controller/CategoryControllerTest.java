@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.controller;
 
+import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
@@ -8,7 +9,6 @@ import com.leman.contentmanagementapi.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExcludeSecurityWebMvcTest(controllers = CategoryController.class)
 @AutoConfigureJsonTesters
-@WebMvcTest(CategoryController.class)
 public class CategoryControllerTest {
 
     private static final String BASE_PATH = "/api/v1/categories";
