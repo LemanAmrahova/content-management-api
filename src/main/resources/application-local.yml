@@ -6,3 +6,7 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
+
+jwt:
+  secret: localDevKey123456789012345678901234567890
+  expiration: 86400000
