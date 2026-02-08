@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.service;
 
 import com.leman.contentmanagementapi.constant.ApplicationConstant;
+import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.UnauthorizedException;
 import com.leman.contentmanagementapi.mapper.TokenMapper;
@@ -67,6 +68,7 @@ public class AuthServiceTest {
 
         assertThat(authService.registerUser(REGISTER_REQUEST)).isEqualTo(USER_RESPONSE);
         assertThat(USER_ENTITY.getPassword()).isEqualTo(ENCODED_PASSWORD);
+        assertThat(USER_ENTITY.getRole()).isEqualTo(Role.USER);
 
         then(userRepository).should().existsByUsername(REGISTER_REQUEST.getUsername());
         then(userRepository).should().existsByEmail(REGISTER_REQUEST.getEmail());

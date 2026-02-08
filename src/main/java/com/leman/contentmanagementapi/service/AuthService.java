@@ -5,6 +5,7 @@ import com.leman.contentmanagementapi.dto.request.RegisterRequest;
 import com.leman.contentmanagementapi.dto.response.LoginResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
+import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.UnauthorizedException;
 import com.leman.contentmanagementapi.exception.constant.ErrorMessage;
@@ -47,6 +48,7 @@ public class AuthService {
 
         User entity = userMapper.toEntity(request);
         entity.setPassword(passwordEncoder.encode(request.getPassword()));
+        entity.setRole(Role.USER);
         User saved = userRepository.save(entity);
         log.info("User registered successfully with ID: {}", saved.getId());
 
