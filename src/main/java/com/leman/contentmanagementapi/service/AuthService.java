@@ -7,6 +7,7 @@ import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
+import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.exception.UnauthorizedException;
 import com.leman.contentmanagementapi.exception.constant.ErrorMessage;
 import com.leman.contentmanagementapi.mapper.TokenMapper;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,49 +40,84 @@ public class AuthService {
 
     @Transactional
     public UserResponse registerUser(RegisterRequest request) {
-        if(userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateResourceException("User", "username", request.getUsername());
-        }
+        validateUniqueUsername(request.getUsername());
+        validateUniqueEmail(request.getEmail());
 
-        if(userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("User", "email", request.getEmail());
-        }
+        User user = createUserFromRequest(request);
+        User savedUser = userRepository.save(user);
+        log.info("User registered successfully with ID: {}", savedUser.getId());
 
-        User entity = userMapper.toEntity(request);
-        entity.setPassword(passwordEncoder.encode(request.getPassword()));
-        entity.setRole(Role.USER);
-        User saved = userRepository.save(entity);
-        log.info("User registered successfully with ID: {}", saved.getId());
-
-        return userMapper.toResponse(saved);
+        return userMapper.toResponse(savedUser);
     }
 
+    @Transactional
     public LoginResponse login(LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),
-                request.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        String accessToken = jwtService.generateAccessToken(request.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(request.getUsername());
-        log.info("User logged in successfully: {}", request.getUsername());
+        User user = findUserByUsernameOrThrow(authentication);
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        log.info("User logged in successfully with ID: {}", user.getId());
 
         return tokenMapper.toLoginResponse(accessToken, refreshToken);
     }
 
+    @Transactional
     public LoginResponse refreshToken(String refreshToken) {
-        if(!jwtService.validateToken(refreshToken)) {
-            throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
-        }
+        validateRefreshTokenType(refreshToken);
 
-        String tokenType = jwtService.getTokenType(refreshToken);
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+        validateRefreshToken(refreshToken, userId);
+
+        User user = findUserByIdOrThrow(userId);
+        String newAccessToken = jwtService.generateAccessToken(user);
+        log.info("Access token refreshed for user ID: {}", userId);
+
+        return tokenMapper.toLoginResponse(newAccessToken, refreshToken);
+    }
+
+    private User findUserByIdOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+    }
+
+    private User findUserByUsernameOrThrow(Authentication authentication) {
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", authentication.getName()));
+    }
+
+    private User createUserFromRequest(RegisterRequest request) {
+        User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
+        return user;
+    }
+
+    private void validateUniqueUsername(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateResourceException("User", "username", username);
+        }
+    }
+
+    private void validateUniqueEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException("User", "email", email);
+        }
+    }
+
+    private void validateRefreshTokenType(String token) {
+        String tokenType = jwtService.getTokenType(token);
         if (!TokenType.REFRESH.equals(tokenType)) {
             throw new UnauthorizedException(ErrorMessage.TOKEN_MALFORMED);
         }
+    }
 
-        String username = jwtService.getUsernameFromToken(refreshToken);
-        String newAccessToken = jwtService.generateAccessToken(username);
-        log.info("Access token refreshed for user: {}", username);
-
-        return tokenMapper.toLoginResponse(newAccessToken, refreshToken);
+    private void validateRefreshToken(String token, Long userId) {
+        if (!jwtService.validateToken(token, userId)) {
+            throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+        }
     }
 
 }
