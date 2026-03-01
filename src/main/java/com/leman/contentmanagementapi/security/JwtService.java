@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.security;
 
+import com.leman.contentmanagementapi.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -14,10 +15,15 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.ACCESS;
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.REFRESH;
+
 @Service
 public class JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+    private static final String TOKEN_TYPE_CLAIM = "type";
+    private static final String USERNAME_CLAIM = "username";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -35,39 +41,39 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String username) {
-        return generateToken(username, "access", accessTokenExpiration);
+    public String generateAccessToken(User user) {
+        return generateToken(user, ACCESS, accessTokenExpiration);
     }
 
-    public String generateRefreshToken(String username) {
-        return generateToken(username, "refresh", refreshTokenExpiration);
+    public String generateRefreshToken(User user) {
+        return generateToken(user, REFRESH, refreshTokenExpiration);
     }
 
-    private String generateToken(String username, String type, long expiration) {
+    private String generateToken(User user, String type, long expiration) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .subject(username)
-                .claim("type", type)
+                .subject(String.valueOf(user.getId()))
+                .claim(USERNAME_CLAIM, user.getUsername())
+                .claim(TOKEN_TYPE_CLAIM, type)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+    public Long getUserIdFromToken(String token) {
+        String subject = extractAllClaims(token).getSubject();
+        return Long.valueOf(subject);
+    }
 
-        return claims.getSubject();
+    public String getUsernameFromToken(String token) {
+        return extractAllClaims(token).get(USERNAME_CLAIM, String.class);
     }
 
     public String getTokenType(String token) {
-        return extractAllClaims(token).get("type", String.class);
+        return extractAllClaims(token).get(TOKEN_TYPE_CLAIM, String.class);
     }
 
     public boolean validateToken(String token) {
@@ -83,22 +89,16 @@ public class JwtService {
         }
     }
 
-    public boolean validateToken(String token, String username) {
+    public boolean validateToken(String token, Long userId) {
         if (!validateToken(token)) {
             return false;
         }
-        String tokenUsername = getUsernameFromToken(token);
-        return tokenUsername.equals(username);
+        Long tokenUserId = getUserIdFromToken(token);
+        return tokenUserId.equals(userId);
     }
 
     private boolean isTokenExpired(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getExpiration().before(new Date());
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Claims extractAllClaims(String token) {

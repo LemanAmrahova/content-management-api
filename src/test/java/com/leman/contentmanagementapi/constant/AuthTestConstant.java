@@ -15,6 +15,7 @@ public final class AuthTestConstant {
     private AuthTestConstant() {
     }
 
+    public static final Long USER_ID = 1L;
     public static final String USERNAME = "testuser";
     public static final String EMAIL = "test@example.com";
     public static final Role ROLE = Role.ADMIN;
