@@ -1,26 +1,5 @@
 package com.leman.contentmanagementapi.service;
 
-import com.leman.contentmanagementapi.constant.ApplicationConstant;
-import com.leman.contentmanagementapi.enums.Role;
-import com.leman.contentmanagementapi.exception.DuplicateResourceException;
-import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
-import com.leman.contentmanagementapi.exception.UnauthorizedException;
-import com.leman.contentmanagementapi.mapper.TokenMapper;
-import com.leman.contentmanagementapi.mapper.UserMapper;
-import com.leman.contentmanagementapi.repository.UserRepository;
-import com.leman.contentmanagementapi.security.JwtService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import java.util.Optional;
-
 import static com.leman.contentmanagementapi.constant.AuthTestConstant.ACCESS_TOKEN;
 import static com.leman.contentmanagementapi.constant.AuthTestConstant.ENCODED_PASSWORD;
 import static com.leman.contentmanagementapi.constant.AuthTestConstant.LOGIN_REQUEST;
@@ -37,8 +16,29 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 
+import com.leman.contentmanagementapi.constant.ApplicationConstant;
+import com.leman.contentmanagementapi.enums.Role;
+import com.leman.contentmanagementapi.exception.DuplicateResourceException;
+import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
+import com.leman.contentmanagementapi.exception.UnauthorizedException;
+import com.leman.contentmanagementapi.mapper.TokenMapper;
+import com.leman.contentmanagementapi.mapper.UserMapper;
+import com.leman.contentmanagementapi.repository.UserRepository;
+import com.leman.contentmanagementapi.security.JwtService;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
+class AuthServiceTest {
 
     @Mock
     private UserMapper userMapper;

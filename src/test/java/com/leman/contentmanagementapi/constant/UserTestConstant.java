@@ -4,11 +4,11 @@ import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.security.UserPrincipal;
+import java.time.LocalDateTime;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import java.time.LocalDateTime;
 
-public class UserTestConstant {
+public final class UserTestConstant {
 
     private UserTestConstant() {
     }
