@@ -1,10 +1,28 @@
 package com.leman.contentmanagementapi.controller;
 
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_FILTER_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
-import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.service.ArticleService;
@@ -14,23 +32,6 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_CREATE_REQUEST;
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_DETAIL_RESPONSE;
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_FILTER_REQUEST;
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
-import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
-import static com.leman.contentmanagementapi.constant.TestConstant.ID;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExcludeSecurityWebMvcTest(controllers = ArticleController.class)
 @AutoConfigureJsonTesters
@@ -57,10 +58,10 @@ public class ArticleControllerTest {
     private JacksonTester<ArticleResponse> responseTester;
 
     @Autowired
-    private JacksonTester<ArticleDetailResponse> detailResponseTester;
+    private JacksonTester<ArticleResponse> detailResponseTester;
 
     @Autowired
-    private JacksonTester<PageableResponse<ArticleDetailResponse>> pageableDetailResponseTester;
+    private JacksonTester<PageableResponse<ArticleResponse>> pageableDetailResponseTester;
 
     @Test
     void create_ShouldReturn_Success() throws Exception {
@@ -71,24 +72,21 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
+
+        then(articleService).should(times(1)).createArticle(ARTICLE_CREATE_REQUEST);
     }
 
     @Test
     void getAll_ShouldReturn_Success() throws Exception {
         given(articleService.findAllArticles(ARTICLE_FILTER_REQUEST)).willReturn(PAGEABLE_ARTICLE_RESPONSE);
 
-        mockMvc.perform(get(BASE_PATH)
-                        .param("page", String.valueOf(ARTICLE_FILTER_REQUEST.getPage()))
-                        .param("size", String.valueOf(ARTICLE_FILTER_REQUEST.getSize()))
-                        .param("sortBy", ARTICLE_FILTER_REQUEST.getSortBy())
-                        .param("sortDirection", ARTICLE_FILTER_REQUEST.getSortDirection().name())
-                        .param("title", ARTICLE_FILTER_REQUEST.getTitle())
-                        .param("content", ARTICLE_FILTER_REQUEST.getContent())
-                        .param("categoryId", ARTICLE_FILTER_REQUEST.getCategoryId().toString())
-                        .param("published", ARTICLE_FILTER_REQUEST.getPublished().toString())
-                        .param("active", ARTICLE_FILTER_REQUEST.getActive().toString()))
+        mockMvc.perform(post(BASE_PATH + "/search")
+                        .content(filterTester.write(ARTICLE_FILTER_REQUEST).getJson())
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(pageableDetailResponseTester.write(PAGEABLE_ARTICLE_RESPONSE).getJson()));
+
+        then(articleService).should(times(1)).findAllArticles(ARTICLE_FILTER_REQUEST);
     }
 
     @Test
@@ -99,6 +97,8 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(detailResponseTester.write(ARTICLE_DETAIL_RESPONSE).getJson()));
+
+        then(articleService).should(times(1)).findArticleById(ID);
     }
 
     @Test
@@ -110,6 +110,8 @@ public class ArticleControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
+
+        then(articleService).should(times(1)).updateArticle(ID, ARTICLE_UPDATE_REQUEST);
     }
 
     @Test
@@ -120,6 +122,8 @@ public class ArticleControllerTest {
                         .content("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
+
+        then(articleService).should(times(1)).publishArticle(ID);
     }
 
     @Test
@@ -130,6 +134,8 @@ public class ArticleControllerTest {
                         .content("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
+
+        then(articleService).should(times(1)).deleteArticle(ID);
     }
 
 }

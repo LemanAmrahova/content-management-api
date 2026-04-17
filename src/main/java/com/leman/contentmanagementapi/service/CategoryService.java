@@ -1,5 +1,8 @@
 package com.leman.contentmanagementapi.service;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.Common.ID;
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.Common.NAME;
+
 import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
 import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
@@ -9,12 +12,11 @@ import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.CategoryMapper;
 import com.leman.contentmanagementapi.repository.CategoryRepository;
-import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -22,13 +24,15 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CategoryService {
 
+    private static final String ENTITY = "Category";
+
     private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public CategoryResponse createCategory(@Valid CategoryCreateRequest request) {
+    public CategoryResponse createCategory(CategoryCreateRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException("Category", "name", request.getName());
+            throw new DuplicateResourceException(ENTITY, NAME, request.getName());
         }
 
         Category saved = categoryRepository.save(categoryMapper.toEntity(request));
@@ -42,17 +46,25 @@ public class CategoryService {
     }
 
     public CategoryResponse findCategoryById(Long id) {
-        return categoryRepository.findByIdAndActiveTrue(id).map(categoryMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+        Category category = findExistingCategoryById(id);
+
+        return categoryMapper.toResponse(category);
+    }
+
+    public CategoryResponse findActiveCategoryById(Long id) {
+        Category category = categoryRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
+
+        return categoryMapper.toResponse(category);
     }
 
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
-        Category category =  categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+        Category category = categoryRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
 
         if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
-            throw new DuplicateResourceException("Category", "name", request.getName());
+            throw new DuplicateResourceException(ENTITY, NAME, request.getName());
         }
 
         category.setName(request.getName());
@@ -63,11 +75,15 @@ public class CategoryService {
 
     @Transactional
     public void changeCategoryStatus(Long id, CategoryStatusChangeRequest request) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+        Category category = findExistingCategoryById(id);
 
         category.setActive(request.getActive());
         log.info("Category status changed successfully with ID: {}", id);
+    }
+
+    private Category findExistingCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
     }
 
 }

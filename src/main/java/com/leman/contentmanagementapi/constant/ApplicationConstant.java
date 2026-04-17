@@ -34,4 +34,10 @@ public final class ApplicationConstant {
         };
     }
 
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class Common {
+        public static final String ID = "id";
+        public static final String NAME = "name";
+    }
+
 }

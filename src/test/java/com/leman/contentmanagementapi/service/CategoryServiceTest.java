@@ -1,33 +1,42 @@
 package com.leman.contentmanagementapi.service;
 
-import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
-import com.leman.contentmanagementapi.dto.response.CategoryResponse;
-import com.leman.contentmanagementapi.exception.DuplicateResourceException;
-import com.leman.contentmanagementapi.mapper.CategoryMapper;
-import com.leman.contentmanagementapi.repository.CategoryRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.List;
-import java.util.Optional;
-
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
-import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_ENTITY;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_STATUS_CHANGE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_UPDATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.CategoryTestConstant.categoryEntity;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+
+import com.leman.contentmanagementapi.dto.response.CategoryResponse;
+import com.leman.contentmanagementapi.entity.Category;
+import com.leman.contentmanagementapi.exception.DuplicateResourceException;
+import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
+import com.leman.contentmanagementapi.mapper.CategoryMapper;
+import com.leman.contentmanagementapi.repository.CategoryRepository;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoryServiceTest {
+class CategoryServiceTest {
 
-    @Mock
-    private CategoryMapper categoryMapper;
+    @Spy
+    private CategoryMapper categoryMapper = Mappers.getMapper(CategoryMapper.class);
 
     @Mock
     private CategoryRepository categoryRepository;
@@ -36,86 +45,122 @@ public class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Test
-    void createCategory_ShouldReturn_Success() {
+    void createCategory_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
         given(categoryRepository.existsByName(CATEGORY_CREATE_REQUEST.getName())).willReturn(false);
-        given(categoryMapper.toEntity(CATEGORY_CREATE_REQUEST)).willReturn(CATEGORY_ENTITY);
-        given(categoryRepository.save(CATEGORY_ENTITY)).willReturn(CATEGORY_ENTITY);
-        given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryEntity);
 
         CategoryResponse result = categoryService.createCategory(CATEGORY_CREATE_REQUEST);
-        assertThat(result).isEqualTo(CATEGORY_RESPONSE);
+        assertNotNull(result);
+        assertEquals(CATEGORY_RESPONSE, result);
 
-        then(categoryMapper).should().toEntity(CATEGORY_CREATE_REQUEST);
-        then(categoryRepository).should().save(CATEGORY_ENTITY);
-        then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+        then(categoryRepository).should(times(1)).existsByName(CATEGORY_CREATE_REQUEST.getName());
+        then(categoryRepository).should(times(1)).save(any(Category.class));
     }
 
     @Test
-    void createCategory_ShouldThrow_DuplicateResourceException() {
+    void createCategory_Should_Throw_DuplicateResourceException() {
         given(categoryRepository.existsByName(CATEGORY_CREATE_REQUEST.getName())).willReturn(true);
 
-        assertThatThrownBy(() -> categoryService.createCategory(CATEGORY_CREATE_REQUEST))
-                .isInstanceOf(DuplicateResourceException.class);
+        assertThrows(DuplicateResourceException.class, () -> categoryService.createCategory(CATEGORY_CREATE_REQUEST));
 
-        then(categoryRepository).should().existsByName(CATEGORY_CREATE_REQUEST.getName());
-        then(categoryRepository).shouldHaveNoMoreInteractions();
+        then(categoryRepository).should(times(1)).existsByName(CATEGORY_CREATE_REQUEST.getName());
+        then(categoryRepository).should(never()).save(any());
     }
 
     @Test
-    void findAllCategories_ShouldReturn_Success() {
-        given(categoryRepository.findAllByActiveTrue()).willReturn(List.of(CATEGORY_ENTITY));
-        given(categoryMapper.toResponse(List.of(CATEGORY_ENTITY))).willReturn(List.of(CATEGORY_RESPONSE));
+    void findAllCategories_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findAllByActiveTrue()).willReturn(List.of(categoryEntity));
 
-        assertThat(categoryService.findAllCategories()).isEqualTo(List.of(CATEGORY_RESPONSE));
+        List<CategoryResponse> result = categoryService.findAllCategories();
+        assertNotNull(result);
+        assertEquals(List.of(CATEGORY_RESPONSE), result);
 
-        then(categoryRepository).should().findAllByActiveTrue();
+        then(categoryRepository).should(times(1)).findAllByActiveTrue();
     }
 
     @Test
-    void findCategoryById_ShouldReturn_Success() {
-        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
-        given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
+    void findCategoryById_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(categoryEntity));
 
-        assertThat(categoryService.findCategoryById(ID)).isEqualTo(CATEGORY_RESPONSE);
+        CategoryResponse result = categoryService.findCategoryById(ID);
 
-        then(categoryRepository).should().findByIdAndActiveTrue(ID);
-        then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+        assertNotNull(result);
+        assertEquals(CATEGORY_RESPONSE, result);
+        then(categoryRepository).should(times(1)).findById(ID);
     }
 
     @Test
-    void updateCategory_ShouldReturnResponse() {
-        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+    void findCategoryById_Should_Throw_ResourceNotFoundException() {
+        given(categoryRepository.findById(ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> categoryService.findCategoryById(ID));
+
+        then(categoryRepository).should(times(1)).findById(ID);
+    }
+
+    @Test
+    void updateCategory_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(categoryEntity));
         given(categoryRepository.existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID)).willReturn(false);
-        given(categoryMapper.toResponse(CATEGORY_ENTITY)).willReturn(CATEGORY_RESPONSE);
 
-        assertThat(categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST)).isEqualTo(CATEGORY_RESPONSE);
+        CategoryResponse result = categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST);
 
-        then(categoryRepository).should().findById(ID);
-        then(categoryRepository).should().existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
-        then(categoryMapper).should().toResponse(CATEGORY_ENTITY);
+        assertNotNull(result);
+        assertEquals(CATEGORY_RESPONSE, result);
+        then(categoryRepository).should(times(1)).findByIdAndActiveTrue(ID);
+        then(categoryRepository).should(times(1)).existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
     }
 
     @Test
-    void updateCategory_ShouldThrow_DuplicateResourceException() {
-        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+    void updateCategory_Should_Throw_DuplicateResourceException() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(categoryEntity));
         given(categoryRepository.existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID)).willReturn(true);
 
-        assertThatThrownBy(() -> categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST))
-                .isInstanceOf(DuplicateResourceException.class);
+        assertThrows(DuplicateResourceException.class,
+                () -> categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST));
 
-        then(categoryRepository).should().findById(ID);
-        then(categoryRepository).should().existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
-        then(categoryMapper).shouldHaveNoInteractions();
+        then(categoryRepository).should(times(1)).findByIdAndActiveTrue(ID);
+        then(categoryRepository).should(times(1)).existsByNameAndIdNot(CATEGORY_UPDATE_REQUEST.getName(), ID);
+        then(categoryRepository).should(never()).save(any());
     }
 
     @Test
-    void changeCategoryStatus_ShouldReturn_Success() {
-        given(categoryRepository.findById(ID)).willReturn(Optional.of(CATEGORY_ENTITY));
+    void updateCategory_Should_Throw_ResourceNotFoundException() {
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.empty());
 
-        categoryService.changeCategoryStatus(ID, CategoryStatusChangeRequest.builder().active(false).build());
+        assertThrows(ResourceNotFoundException.class,
+                () -> categoryService.updateCategory(ID, CATEGORY_UPDATE_REQUEST));
 
-        then(categoryRepository).should().findById(ID);
+        then(categoryRepository).should(times(1)).findByIdAndActiveTrue(ID);
+        then(categoryRepository).should(never()).existsByNameAndIdNot(any(), any());
+    }
+
+    @Test
+    void changeCategoryStatus_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findById(ID)).willReturn(Optional.of(categoryEntity));
+
+        categoryService.changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
+
+        assertTrue(categoryEntity.getActive());
+
+        then(categoryRepository).should(times(1)).findById(ID);
         then(categoryRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void changeCategoryStatus_Should_Throw_ResourceNotFoundException() {
+        given(categoryRepository.findById(ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> categoryService.changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST));
+
+        then(categoryRepository).should(times(1)).findById(ID);
     }
 
 }

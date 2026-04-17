@@ -1,5 +1,7 @@
 package com.leman.contentmanagementapi.constant;
 
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+
 import com.leman.contentmanagementapi.dto.request.LoginRequest;
 import com.leman.contentmanagementapi.dto.request.RegisterRequest;
 import com.leman.contentmanagementapi.dto.response.LoginResponse;
@@ -7,8 +9,6 @@ import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.enums.Role;
 import java.time.LocalDateTime;
-
-import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 
 public final class AuthTestConstant {
 

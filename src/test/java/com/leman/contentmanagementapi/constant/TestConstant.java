@@ -8,7 +8,6 @@ public final class TestConstant {
     }
 
     public static final Long ID = 1L;
-    public static final Boolean ACTIVE = true;
     public static final Integer PAGE = 0;
     public static final Integer SIZE = 10;
     public static final String SORT_BY = "id";

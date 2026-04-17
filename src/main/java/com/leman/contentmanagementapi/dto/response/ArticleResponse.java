@@ -14,6 +14,7 @@ public class ArticleResponse {
 
     private Long id;
     private Long categoryId;
+    private String categoryName;
     private String title;
     private String content;
     private Boolean active;

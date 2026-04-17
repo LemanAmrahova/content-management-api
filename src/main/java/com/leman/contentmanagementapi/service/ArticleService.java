@@ -1,17 +1,16 @@
 package com.leman.contentmanagementapi.service;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.Common.ID;
+
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
-import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
-import com.leman.contentmanagementapi.entity.Category;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
-import com.leman.contentmanagementapi.repository.CategoryRepository;
 import com.leman.contentmanagementapi.specification.ArticleSpecification;
 import com.leman.contentmanagementapi.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,46 +26,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ArticleService {
 
+    private static final String ENTITY = "Article";
+
     private final ArticleMapper articleMapper;
     private final ArticleRepository articleRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
     @Transactional
     public ArticleResponse createArticle(ArticleCreateRequest request) {
-        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
+        categoryService.findActiveCategoryById(request.getCategoryId());
 
-        Article entity = articleMapper.toEntity(request);
-        entity.setCategory(category);
-        Article saved = articleRepository.save(entity);
+        Article saved = articleRepository.save(articleMapper.toEntity(request));
         log.info("Article created successfully with ID: {}", saved.getId());
 
         return articleMapper.toResponse(saved);
     }
 
-    public PageableResponse<ArticleDetailResponse> findAllArticles(ArticleFilterRequest request) {
+    public PageableResponse<ArticleResponse> findAllArticles(ArticleFilterRequest request) {
         Pageable pageable = PaginationUtil.createPageable(request);
         Specification<Article> articleSpecification = ArticleSpecification.getSpecification(request);
 
-        return articleMapper.toResponse(articleRepository.findAll(articleSpecification, pageable));
+        return articleMapper.toPageableResponse(articleRepository.findAll(articleSpecification, pageable));
     }
 
-    public ArticleDetailResponse findArticleById(Long id) {
-        return articleRepository.findByIdAndActiveWithCategory(id).map(articleMapper::toDetailResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+    public ArticleResponse findArticleById(Long id) {
+        Article article = findActiveArticleById(id);
+
+        return articleMapper.toDetailResponse(article);
     }
 
     @Transactional
     public ArticleResponse updateArticle(Long id, ArticleUpdateRequest request) {
-        Article article = articleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+        Article article = findActiveArticleById(id);
 
-        Category category = categoryRepository.findByIdAndActiveTrue(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.getCategoryId()));
+        categoryService.findActiveCategoryById(request.getCategoryId());
 
         article.setTitle(request.getTitle());
         article.setContent(request.getContent());
-        article.setCategory(category);
+        article.getCategory().setId(request.getCategoryId());
         log.info("Article updated successfully with ID: {}", id);
 
         return articleMapper.toResponse(article);
@@ -74,8 +71,7 @@ public class ArticleService {
 
     @Transactional
     public void publishArticle(Long id) {
-        Article article = articleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+        Article article = findActiveArticleById(id);
 
         article.setPublished(true);
         log.info("Article published successfully with ID: {}", id);
@@ -83,11 +79,15 @@ public class ArticleService {
 
     @Transactional
     public void deleteArticle(Long id) {
-        Article article = articleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", id));
+        Article article = findActiveArticleById(id);
 
         article.setActive(false);
         log.info("Article deleted successfully with ID: {}", id);
+    }
+
+    private Article findActiveArticleById(Long id) {
+        return articleRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
     }
 
 }

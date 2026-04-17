@@ -1,9 +1,10 @@
 package com.leman.contentmanagementapi.controller;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
-import com.leman.contentmanagementapi.dto.response.ArticleDetailResponse;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.service.ArticleService;
@@ -22,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.HttpStatus.CREATED;
-
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -37,13 +36,13 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).body(articleService.createArticle(request));
     }
 
-    @GetMapping
-    public ResponseEntity<PageableResponse<ArticleDetailResponse>> getAll(ArticleFilterRequest request) {
+    @PostMapping
+    public ResponseEntity<PageableResponse<ArticleResponse>> getAll(ArticleFilterRequest request) {
         return ResponseEntity.ok(articleService.findAllArticles(request));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ArticleDetailResponse> getById(@PathVariable @Positive Long id) {
+    public ResponseEntity<ArticleResponse> getById(@PathVariable @Positive Long id) {
         return ResponseEntity.ok(articleService.findArticleById(id));
     }
 
