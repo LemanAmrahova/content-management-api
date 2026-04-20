@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExcludeSecurityWebMvcTest(controllers = UserController.class)
 @AutoConfigureJsonTesters
-public class UserControllerTest {
+class UserControllerTest {
 
     private static final String BASE_PATH = "/api/v1/users";
 

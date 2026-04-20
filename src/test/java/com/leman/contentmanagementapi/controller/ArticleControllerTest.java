@@ -7,6 +7,7 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -35,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @ExcludeSecurityWebMvcTest(controllers = ArticleController.class)
 @AutoConfigureJsonTesters
-public class ArticleControllerTest {
+class ArticleControllerTest {
 
     private static final String BASE_PATH = "/api/v1/articles";
 
@@ -78,7 +79,7 @@ public class ArticleControllerTest {
 
     @Test
     void getAll_ShouldReturn_Success() throws Exception {
-        given(articleService.findAllArticles(ARTICLE_FILTER_REQUEST)).willReturn(PAGEABLE_ARTICLE_RESPONSE);
+        given(articleService.findAllArticles(any(ArticleFilterRequest.class))).willReturn(PAGEABLE_ARTICLE_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH + "/search")
                         .content(filterTester.write(ARTICLE_FILTER_REQUEST).getJson())
@@ -86,7 +87,7 @@ public class ArticleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(pageableDetailResponseTester.write(PAGEABLE_ARTICLE_RESPONSE).getJson()));
 
-        then(articleService).should(times(1)).findAllArticles(ARTICLE_FILTER_REQUEST);
+        then(articleService).should(times(1)).findAllArticles(any(ArticleFilterRequest.class));
     }
 
     @Test

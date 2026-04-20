@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExcludeSecurityWebMvcTest(controllers = AuthController.class)
 @AutoConfigureJsonTesters
-public class AuthControllerTest {
+class AuthControllerTest {
 
     private static final String BASE_PATH = "/api/v1/auth";
 

@@ -102,6 +102,27 @@ class CategoryServiceTest {
     }
 
     @Test
+    void findActiveCategoryById_Should_Return_Success() {
+        Category categoryEntity = categoryEntity();
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(categoryEntity));
+
+        CategoryResponse result = categoryService.findActiveCategoryById(ID);
+        assertNotNull(result);
+        assertEquals(CATEGORY_RESPONSE, result);
+
+        then(categoryRepository).should(times(1)).findByIdAndActiveTrue(ID);
+    }
+
+    @Test
+    void findActiveCategoryById_Should_Throw_ResourceNotFoundException() {
+        given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> categoryService.findActiveCategoryById(ID));
+
+        then(categoryRepository).should(times(1)).findByIdAndActiveTrue(ID);
+    }
+
+    @Test
     void updateCategory_Should_Return_Success() {
         Category categoryEntity = categoryEntity();
         given(categoryRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(categoryEntity));
