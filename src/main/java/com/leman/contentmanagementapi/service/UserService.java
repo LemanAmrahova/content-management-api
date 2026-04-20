@@ -1,5 +1,7 @@
 package com.leman.contentmanagementapi.service;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.Common.ID;
+
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserService {
 
+    private static final String ENTITY = "User";
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -27,7 +31,7 @@ public class UserService {
 
     private User findUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, userId));
     }
 
 }

@@ -1,32 +1,34 @@
 package com.leman.contentmanagementapi.controller;
 
-import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
-import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
-import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
-import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
-import com.leman.contentmanagementapi.dto.response.CategoryResponse;
-import com.leman.contentmanagementapi.service.CategoryService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import java.util.List;
-
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_CREATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_STATUS_CHANGE_REQUEST;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
+import com.leman.contentmanagementapi.dto.request.CategoryCreateRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryStatusChangeRequest;
+import com.leman.contentmanagementapi.dto.request.CategoryUpdateRequest;
+import com.leman.contentmanagementapi.dto.response.CategoryResponse;
+import com.leman.contentmanagementapi.service.CategoryService;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 @ExcludeSecurityWebMvcTest(controllers = CategoryController.class)
 @AutoConfigureJsonTesters
@@ -64,6 +66,8 @@ class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+
+        then(categoryService).should(times(1)).createCategory(CATEGORY_CREATE_REQUEST);
     }
 
     @Test
@@ -74,6 +78,8 @@ class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(listResponseTester.write(List.of(CATEGORY_RESPONSE)).getJson()));
+
+        then(categoryService).should(times(1)).findAllCategories();
     }
 
     @Test
@@ -84,6 +90,8 @@ class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+
+        then(categoryService).should(times(1)).findCategoryById(ID);
     }
 
     @Test
@@ -95,6 +103,8 @@ class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(CATEGORY_RESPONSE).getJson()));
+
+        then(categoryService).should(times(1)).updateCategory(ID, CATEGORY_UPDATE_REQUEST);
     }
 
     @Test
@@ -106,6 +116,8 @@ class CategoryControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
+
+        then(categoryService).should(times(1)).changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
     }
 
 }

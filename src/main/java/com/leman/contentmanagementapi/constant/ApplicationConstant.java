@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.constant;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,18 +27,20 @@ public final class ApplicationConstant {
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Security {
-        public static final String[] PUBLIC_ENDPOINTS = {
+        public static final List<String> PUBLIC_ENDPOINTS = List.of(
                 "/api/v1/auth/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/error"
-        };
+        );
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Common {
         public static final String ID = "id";
         public static final String NAME = "name";
+        public static final String USERNAME = "username";
+        public static final String EMAIL = "email";
     }
 
 }

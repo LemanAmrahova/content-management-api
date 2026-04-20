@@ -21,6 +21,8 @@ import static com.leman.contentmanagementapi.constant.AuthTestConstant.REFRESH_T
 import static com.leman.contentmanagementapi.constant.AuthTestConstant.REGISTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.AuthTestConstant.USER_RESPONSE;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,6 +63,8 @@ class AuthControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(userResponseTester.write(USER_RESPONSE).getJson()));
+
+        then(authService).should(times(1)).registerUser(REGISTER_REQUEST);
     }
 
     @Test
@@ -72,6 +76,8 @@ class AuthControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(loginResponseTester.write(LOGIN_RESPONSE).getJson()));
+
+        then(authService).should(times(1)).login(LOGIN_REQUEST);
     }
 
     @Test
@@ -83,6 +89,8 @@ class AuthControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(loginResponseTester.write(LOGIN_RESPONSE).getJson()));
+
+        then(authService).should(times(1)).refreshToken(REFRESH_TOKEN);
     }
 
 }
