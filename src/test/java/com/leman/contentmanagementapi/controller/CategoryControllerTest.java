@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExcludeSecurityWebMvcTest(controllers = CategoryController.class)
 @AutoConfigureJsonTesters
-public class CategoryControllerTest {
+class CategoryControllerTest {
 
     private static final String BASE_PATH = "/api/v1/categories";
 

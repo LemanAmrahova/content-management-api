@@ -36,7 +36,7 @@ public class ArticleController {
         return ResponseEntity.status(CREATED).body(articleService.createArticle(request));
     }
 
-    @PostMapping
+    @PostMapping("/search")
     public ResponseEntity<PageableResponse<ArticleResponse>> getAll(ArticleFilterRequest request) {
         return ResponseEntity.ok(articleService.findAllArticles(request));
     }
