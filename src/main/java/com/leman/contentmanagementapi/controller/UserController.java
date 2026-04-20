@@ -21,8 +21,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getUser().getId();
-        return ResponseEntity.ok(userService.getUserById(userId));
+        return ResponseEntity.ok(userService.getUserById(userPrincipal.getUser().getId()));
     }
 
 }

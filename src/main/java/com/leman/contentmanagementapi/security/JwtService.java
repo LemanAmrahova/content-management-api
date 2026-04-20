@@ -1,5 +1,8 @@
 package com.leman.contentmanagementapi.security;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.ACCESS;
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.REFRESH;
+
 import com.leman.contentmanagementapi.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -7,21 +10,17 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
-import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.ACCESS;
-import static com.leman.contentmanagementapi.constant.ApplicationConstant.TokenType.REFRESH;
+import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class JwtService {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
     private static final String TOKEN_TYPE_CLAIM = "type";
     private static final String USERNAME_CLAIM = "username";
 
@@ -63,42 +62,27 @@ public class JwtService {
                 .compact();
     }
 
+
     public Long getUserIdFromToken(String token) {
         String subject = extractAllClaims(token).getSubject();
         return Long.valueOf(subject);
-    }
-
-    public String getUsernameFromToken(String token) {
-        return extractAllClaims(token).get(USERNAME_CLAIM, String.class);
     }
 
     public String getTokenType(String token) {
         return extractAllClaims(token).get(TOKEN_TYPE_CLAIM, String.class);
     }
 
-    public boolean validateToken(String token) {
-        try {
-            extractAllClaims(token);
-            return !isTokenExpired(token);
-        } catch (ExpiredJwtException e) {
-            logger.warn("Token expired: {}", e.getMessage());
-            return false;
-        } catch (JwtException e) {
-            logger.error("Token validation failed: {}", e.getMessage());
-            return false;
-        }
-    }
-
     public boolean validateToken(String token, Long userId) {
-        if (!validateToken(token)) {
+        try {
+            Claims claims = extractAllClaims(token);
+            if (claims.getExpiration().before(new Date())) {
+                return false;
+            }
+            return Long.valueOf(claims.getSubject()).equals(userId);
+        } catch (JwtException e) {
+            log.error("Token validation failed: {}", e.getMessage());
             return false;
         }
-        Long tokenUserId = getUserIdFromToken(token);
-        return tokenUserId.equals(userId);
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Claims extractAllClaims(String token) {

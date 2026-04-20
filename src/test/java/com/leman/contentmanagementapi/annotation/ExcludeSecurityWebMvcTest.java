@@ -1,5 +1,8 @@
 package com.leman.contentmanagementapi.annotation;
 
+import com.leman.contentmanagementapi.config.SecurityConfig;
+import com.leman.contentmanagementapi.security.CustomUserDetailsService;
+import com.leman.contentmanagementapi.security.JwtAuthenticationFilter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
@@ -29,8 +32,12 @@ public @interface ExcludeSecurityWebMvcTest {
     @AliasFor(annotation = WebMvcTest.class, attribute = "excludeFilters")
     ComponentScan.Filter[] excludeFilters() default {
             @ComponentScan.Filter(
-                    type = FilterType.REGEX,
-                    pattern = "com\\.leman\\.contentmanagementapi\\.security\\..*"
+                    type = FilterType.ASSIGNABLE_TYPE,
+                    classes = {
+                            CustomUserDetailsService.class,
+                            JwtAuthenticationFilter.class,
+                            SecurityConfig.class
+                    }
             )
     };
 
