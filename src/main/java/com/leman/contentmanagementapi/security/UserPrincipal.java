@@ -1,13 +1,13 @@
 package com.leman.contentmanagementapi.security;
 
 import com.leman.contentmanagementapi.entity.User;
+import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -28,6 +28,11 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUsername();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
     }
 
 }

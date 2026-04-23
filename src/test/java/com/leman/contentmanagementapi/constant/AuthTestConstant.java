@@ -21,7 +21,6 @@ public final class AuthTestConstant {
     public static final Role ROLE = Role.ADMIN;
     public static final String PASSWORD = "Test123@";
     public static final String ENCODED_PASSWORD = "encoded-password";
-    public static final Boolean ENABLED = true;
     public static final LocalDateTime CREATED_AT = LocalDateTime.of(2024, 1, 1, 10, 0);
     public static final LocalDateTime UPDATED_AT = LocalDateTime.of(2024, 1, 1, 10, 0);
 
@@ -43,9 +42,12 @@ public final class AuthTestConstant {
     public static final User USER_ENTITY = User.builder()
             .id(ID)
             .username(USERNAME)
+            .email(EMAIL)
             .role(ROLE)
             .password(ENCODED_PASSWORD)
-            .enabled(ENABLED)
+            .enabled(true)
+            .createdAt(CREATED_AT)
+            .updatedAt(UPDATED_AT)
             .build();
 
     public static final UserResponse USER_RESPONSE = UserResponse.builder()
@@ -53,6 +55,7 @@ public final class AuthTestConstant {
             .username(USERNAME)
             .email(EMAIL)
             .role(ROLE)
+            .enabled(true)
             .createdAt(CREATED_AT)
             .updatedAt(UPDATED_AT)
             .build();
