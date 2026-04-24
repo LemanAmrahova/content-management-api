@@ -19,7 +19,6 @@ import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +49,6 @@ class ArticleServiceTest {
     @Test
     void createArticle_ShouldReturn_Success() {
         Article articleEntity = articleEntity();
-
         given(categoryService.findActiveCategoryById(ARTICLE_CREATE_REQUEST.getCategoryId()))
                 .willReturn(CATEGORY_RESPONSE);
         given(articleRepository.save(any(Article.class))).willReturn(articleEntity);
@@ -64,10 +62,7 @@ class ArticleServiceTest {
 
     @Test
     void findAllArticles_ShouldReturn_Success() {
-        Article articleEntity = articleEntity();
-
         Page<Article> articlePage = mock(Page.class);
-        given(articlePage.getContent()).willReturn(List.of(articleEntity));
         given(articleRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(articlePage);
 
         PageableResponse<ArticleResponse> result = articleService.findAllArticles(ARTICLE_FILTER_REQUEST);
@@ -79,7 +74,6 @@ class ArticleServiceTest {
     @Test
     void findArticleById_ShouldReturn_Success() {
         Article articleEntity = articleEntity();
-
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
 
         ArticleResponse result = articleService.findArticleById(ID);
@@ -91,7 +85,6 @@ class ArticleServiceTest {
     @Test
     void updateArticle_ShouldReturn_Success() {
         Article articleEntity = articleEntity();
-
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
         given(categoryService.findActiveCategoryById(ARTICLE_UPDATE_REQUEST.getCategoryId()))
                 .willReturn(CATEGORY_RESPONSE);
@@ -107,7 +100,6 @@ class ArticleServiceTest {
     @Test
     void publishArticle_ShouldReturn_Success() {
         Article articleEntity = articleEntity();
-
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
 
         articleService.publishArticle(ID);
@@ -120,7 +112,6 @@ class ArticleServiceTest {
     @Test
     void deleteArticle_ShouldReturn_Success() {
         Article articleEntity = articleEntity();
-
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
 
         articleService.deleteArticle(ID);

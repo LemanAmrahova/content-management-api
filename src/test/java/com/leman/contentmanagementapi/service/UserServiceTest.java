@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.service;
 
+import static com.leman.contentmanagementapi.constant.AdminTestConstant.USER_FILTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.ENCODED_PASSWORD;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.PASSWORD_CHANGE_REQUEST;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.SAME_PASSWORD_REQUEST;
@@ -14,10 +15,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import com.leman.contentmanagementapi.constant.UserTestConstant;
+import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.exception.BadRequestException;
@@ -33,6 +36,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +55,17 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    @Test
+    void findAllUsers_Should_Return_Success() {
+        Page<User> userPage = mock(Page.class);
+        given(userRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(userPage);
+
+        PageableResponse<UserResponse> result = userService.findAllUsers(USER_FILTER_REQUEST);
+        assertNotNull(result);
+
+        then(userRepository).should(times(1)).findAll(any(Specification.class), any(Pageable.class));
+    }
 
     @Test
     void getUserById_Should_Return_Success() {
