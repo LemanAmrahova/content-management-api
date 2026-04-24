@@ -1,5 +1,6 @@
 package com.leman.contentmanagementapi.aop;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -8,7 +9,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-import java.util.Arrays;
 
 @Slf4j
 @Aspect
@@ -23,12 +23,20 @@ public class LoggingAspect {
     public void serviceLayer() {
     }
 
-    @Around("controllerLayer()")
+    @Pointcut("execution(* com.leman.contentmanagementapi.controller.AuthController.*(..))")
+    public void authController() {
+    }
+
+    @Pointcut("execution(* com.leman.contentmanagementapi.service.AuthService.*(..))")
+    public void authService() {
+    }
+
+    @Around("controllerLayer() && !authController()")
     public Object logController(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
         Object[] args = joinPoint.getArgs();
 
-        log.debug("[CONTROLLER] - {} with args: {}", methodName, Arrays.toString(args));
+        log.debug("[CONTROLLER] - {} with args: {}", methodName, args);
 
         long start = System.currentTimeMillis();
         Object result = joinPoint.proceed();
@@ -39,18 +47,48 @@ public class LoggingAspect {
         return result;
     }
 
-    @Around("serviceLayer()")
+    @Around("authController()")
+    public Object logAuthController(ProceedingJoinPoint joinPoint) throws Throwable {
+        String methodName = joinPoint.getSignature().toShortString();
+
+        log.debug("[CONTROLLER] - {} called", methodName);
+
+        long start = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long duration = System.currentTimeMillis() - start;
+
+        log.debug("[CONTROLLER] - {} completed (in {}ms)", methodName, duration);
+
+        return result;
+    }
+
+    @Around("serviceLayer() && !authService()")
     public Object logService(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().toShortString();
         Object[] args = joinPoint.getArgs();
 
-        log.debug("[SERVICE] - {} with args: {}", methodName, Arrays.toString(args));
+        log.debug("[SERVICE] - {} with args: {}", methodName, args);
 
         long start = System.currentTimeMillis();
         Object result = joinPoint.proceed();
         long duration = System.currentTimeMillis() - start;
 
         log.debug("[SERVICE] - {} returned: {} (in {}ms)", methodName, result, duration);
+
+        return result;
+    }
+
+    @Around("authService()")
+    public Object logAuthService(ProceedingJoinPoint joinPoint) throws Throwable {
+        String methodName = joinPoint.getSignature().toShortString();
+
+        log.debug("[SERVICE] - {} called", methodName);
+
+        long start = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long duration = System.currentTimeMillis() - start;
+
+        log.debug("[SERVICE] - {} completed (in {}ms)", methodName, duration);
 
         return result;
     }
