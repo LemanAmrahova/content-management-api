@@ -23,6 +23,7 @@ import com.leman.contentmanagementapi.constant.ApplicationConstant;
 import com.leman.contentmanagementapi.dto.response.LoginResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
+import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.exception.UnauthorizedException;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -68,6 +71,9 @@ class AuthServiceTest {
     @Mock
     private Authentication authentication;
 
+    @Captor
+    private ArgumentCaptor<User> userCaptor;
+
     @InjectMocks
     private AuthService authService;
 
@@ -84,8 +90,11 @@ class AuthServiceTest {
 
         then(userRepository).should(times(1)).existsByUsername(REGISTER_REQUEST.getUsername());
         then(userRepository).should(times(1)).existsByEmail(REGISTER_REQUEST.getEmail());
-        then(userRepository).should(times(1)).save(any(User.class));
+        then(userRepository).should(times(1)).save(userCaptor.capture());
         then(passwordEncoder).should(times(1)).encode(REGISTER_REQUEST.getPassword());
+
+        assertEquals(ENCODED_PASSWORD, userCaptor.getValue().getPassword());
+        assertEquals(Role.USER, userCaptor.getValue().getRole());
     }
 
     @Test
