@@ -64,6 +64,14 @@ public class UserService {
         log.info("User password changed successfully with ID: {}", id);
     }
 
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = findExistingUser(id);
+
+        user.setEnabled(false);
+        log.info("User deleted successfully with ID: {}", id);
+    }
+
     private User findExistingUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, userId));
