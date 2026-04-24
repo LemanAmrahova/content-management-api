@@ -13,11 +13,15 @@ public class DuplicateResourceException extends RuntimeException {
     private final String field;
     private final Object value;
 
-    public DuplicateResourceException(String entity, String field, Object value) {
+    private DuplicateResourceException(String entity, String field, Object value) {
         super(MessageFormat.format(ErrorMessage.RESOURCE_ALREADY_EXISTS_ERROR_MESSAGE, entity, field, value));
         this.entity = entity;
         this.field = field;
         this.value = value;
+    }
+
+    public static DuplicateResourceException of(String entity, String field, Object value) {
+        return new DuplicateResourceException(entity, field, value);
     }
 
 }

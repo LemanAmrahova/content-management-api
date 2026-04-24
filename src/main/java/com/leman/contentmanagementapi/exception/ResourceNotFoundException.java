@@ -13,11 +13,15 @@ public class ResourceNotFoundException extends RuntimeException {
     private final String field;
     private final Object value;
 
-    public ResourceNotFoundException(String entity, String field, Object value) {
+    private ResourceNotFoundException(String entity, String field, Object value) {
         super(MessageFormat.format(ErrorMessage.RESOURCE_NOT_FOUND_ERROR_MESSAGE, entity, field, value));
         this.entity = entity;
         this.field = field;
         this.value = value;
+    }
+
+    public static ResourceNotFoundException of(String entity, String field, Object value) {
+        return new ResourceNotFoundException(entity, field, value);
     }
 
 }

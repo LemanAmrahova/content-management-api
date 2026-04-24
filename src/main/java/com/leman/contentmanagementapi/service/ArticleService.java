@@ -87,7 +87,7 @@ public class ArticleService {
 
     private Article findActiveArticleById(Long id) {
         return articleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, id));
     }
 
 }

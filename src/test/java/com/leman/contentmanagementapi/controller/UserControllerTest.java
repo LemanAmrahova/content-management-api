@@ -1,19 +1,23 @@
 package com.leman.contentmanagementapi.controller;
 
+import static com.leman.contentmanagementapi.constant.UserTestConstant.PASSWORD_CHANGE_REQUEST;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_ID;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_PRINCIPAL;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESPONSE;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_UPDATE_REQUEST;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.leman.contentmanagementapi.config.SecurityConfig;
+import com.leman.contentmanagementapi.dto.request.PasswordChangeRequest;
 import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.security.CustomUserDetailsService;
@@ -49,6 +53,9 @@ class UserControllerTest {
     private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
+    private JacksonTester<PasswordChangeRequest> passwordChangeTester;
+
+    @Autowired
     private JacksonTester<UserUpdateRequest> updateTester;
 
     @Autowired
@@ -80,6 +87,21 @@ class UserControllerTest {
                 .andExpect(content().json(responseTester.write(USER_RESPONSE).getJson()));
 
         then(userService).should(times(1)).updateUser(USER_ID, USER_UPDATE_REQUEST);
+    }
+
+    @Test
+    void changePassword_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(userService).changePassword(USER_ID, PASSWORD_CHANGE_REQUEST);
+
+        mockMvc.perform(patch(BASE_PATH + "/me/password")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
+                        .content(passwordChangeTester.write(PASSWORD_CHANGE_REQUEST).getJson())
+                        .contentType("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        then(userService).should(times(1)).changePassword(USER_ID, PASSWORD_CHANGE_REQUEST);
     }
 
 }

@@ -32,7 +32,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponse createCategory(CategoryCreateRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException(ENTITY, NAME, request.getName());
+            throw DuplicateResourceException.of(ENTITY, NAME, request.getName());
         }
 
         Category saved = categoryRepository.save(categoryMapper.toEntity(request));
@@ -53,7 +53,7 @@ public class CategoryService {
 
     public CategoryResponse findActiveCategoryById(Long id) {
         Category category = categoryRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, id));
 
         return categoryMapper.toResponse(category);
     }
@@ -61,10 +61,10 @@ public class CategoryService {
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request) {
         Category category = categoryRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, id));
 
         if (categoryRepository.existsByNameAndIdNot(request.getName(), id)) {
-            throw new DuplicateResourceException(ENTITY, NAME, request.getName());
+            throw DuplicateResourceException.of(ENTITY, NAME, request.getName());
         }
 
         category.setName(request.getName());
@@ -83,7 +83,7 @@ public class CategoryService {
 
     private Category findExistingCategoryById(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, id));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, id));
     }
 
 }

@@ -83,43 +83,45 @@ public class AuthService {
 
     private User findUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, ID, userId));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, userId));
     }
 
     private User findUserByUsernameOrThrow(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException(ENTITY, USERNAME, authentication.getName()));
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, USERNAME, authentication.getName()));
     }
 
     private User createUserFromRequest(RegisterRequest request) {
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.USER);
+
         return user;
     }
 
     private void validateUniqueUsername(String username) {
         if (userRepository.existsByUsername(username)) {
-            throw new DuplicateResourceException(ENTITY, USERNAME, username);
+            throw DuplicateResourceException.of(ENTITY, USERNAME, username);
         }
     }
 
     private void validateUniqueEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException(ENTITY, EMAIL, email);
+            throw DuplicateResourceException.of(ENTITY, EMAIL, email);
         }
     }
 
     private void validateRefreshTokenType(String token) {
         String tokenType = jwtService.getTokenType(token);
+
         if (!TokenType.REFRESH.equals(tokenType)) {
-            throw new UnauthorizedException(ErrorMessage.TOKEN_MALFORMED);
+            throw UnauthorizedException.of(ErrorMessage.TOKEN_MALFORMED);
         }
     }
 
     private void validateRefreshToken(String token, Long userId) {
         if (!jwtService.validateToken(token, userId)) {
-            throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+            throw UnauthorizedException.of(ErrorMessage.INVALID_REFRESH_TOKEN);
         }
     }
 
