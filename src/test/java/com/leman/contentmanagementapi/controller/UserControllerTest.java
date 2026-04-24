@@ -10,6 +10,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -102,6 +103,19 @@ class UserControllerTest {
                 .andExpect(content().string(""));
 
         then(userService).should(times(1)).changePassword(USER_ID, PASSWORD_CHANGE_REQUEST);
+    }
+
+    @Test
+    void deleteUser_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(userService).deleteUser(USER_ID);
+
+        mockMvc.perform(delete(BASE_PATH + "/me")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities()))))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        then(userService).should(times(1)).deleteUser(USER_ID);
     }
 
 }

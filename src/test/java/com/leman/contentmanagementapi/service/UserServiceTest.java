@@ -7,6 +7,7 @@ import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_ID;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESPONSE;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_UPDATE_REQUEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -171,6 +172,27 @@ class UserServiceTest {
 
         then(userRepository).should(times(1)).findById(USER_ID);
         then(passwordEncoder).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void deleteUser_Should_Return_Success() {
+        User userEntity = UserTestConstant.userEntity();
+        given(userRepository.findById(USER_ID)).willReturn(Optional.of(userEntity));
+
+        userService.deleteUser(USER_ID);
+        assertFalse(userEntity.isEnabled());
+
+        then(userRepository).should(times(1)).findById(USER_ID);
+        then(userRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void deleteUser_Should_Throw_ResourceNotFoundException_WhenUserNotFound() {
+        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(USER_ID));
+
+        then(userRepository).should(times(1)).findById(USER_ID);
     }
 
 }
