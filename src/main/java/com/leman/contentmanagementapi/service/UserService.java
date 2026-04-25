@@ -11,17 +11,14 @@ import com.leman.contentmanagementapi.dto.request.UserFilterRequest;
 import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
-import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.exception.BadRequestException;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.UserMapper;
 import com.leman.contentmanagementapi.repository.UserRepository;
-import com.leman.contentmanagementapi.specification.ArticleSpecification;
 import com.leman.contentmanagementapi.specification.UserSpecification;
 import com.leman.contentmanagementapi.util.PaginationUtil;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +46,7 @@ public class UserService {
         return userMapper.toPageableResponse(userRepository.findAll(userSpecification, pageable));
     }
 
-    public UserResponse getUserById(Long userId) {
+    public UserResponse findUserById(Long userId) {
         User user = findExistingUser(userId);
 
         return userMapper.toResponse(user);

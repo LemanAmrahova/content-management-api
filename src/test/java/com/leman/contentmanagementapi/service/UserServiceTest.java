@@ -72,7 +72,7 @@ class UserServiceTest {
         User userEntity = UserTestConstant.userEntity();
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(userEntity));
 
-        UserResponse result = userService.getUserById(USER_ID);
+        UserResponse result = userService.findUserById(USER_ID);
         assertNotNull(result);
         assertEquals(USER_RESPONSE, result);
 
@@ -83,7 +83,7 @@ class UserServiceTest {
     void getUserById_Should_Throw_ResourceNotFoundException_WhenUserNotFound() {
         given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> userService.getUserById(USER_ID));
+        assertThrows(ResourceNotFoundException.class, () -> userService.findUserById(USER_ID));
 
         then(userRepository).should(times(1)).findById(USER_ID);
     }
