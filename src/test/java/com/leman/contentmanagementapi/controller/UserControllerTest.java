@@ -64,7 +64,7 @@ class UserControllerTest {
 
     @Test
     void getCurrentUser_ShouldReturn_Success() throws Exception {
-        given(userService.getUserById(USER_ID)).willReturn(USER_RESPONSE);
+        given(userService.findUserById(USER_ID)).willReturn(USER_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH + "/me")
                         .with(authentication(new UsernamePasswordAuthenticationToken(
@@ -72,7 +72,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(USER_RESPONSE).getJson()));
 
-        then(userService).should(times(1)).getUserById(USER_ID);
+        then(userService).should(times(1)).findUserById(USER_ID);
     }
 
     @Test
