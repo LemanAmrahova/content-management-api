@@ -7,7 +7,9 @@ import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESP
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -73,6 +75,18 @@ class AdminControllerTest {
                 .andExpect(content().json(responseTester.write(USER_RESPONSE).getJson()));
 
         then(userService).should(times(1)).findUserById(ID);
+    }
+
+    @Test
+    void deleteUser_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(userService).deleteUser(ID);
+
+        mockMvc.perform(delete(BASE_PATH + "/" + ID)
+                        .contentType("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        then(userService).should(times(1)).deleteUser(ID);
     }
 
 }
