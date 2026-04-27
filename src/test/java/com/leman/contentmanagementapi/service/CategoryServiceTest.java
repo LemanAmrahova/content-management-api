@@ -162,11 +162,11 @@ class CategoryServiceTest {
     }
 
     @Test
-    void changeCategoryStatus_Should_Return_Success() {
+    void updateCategoryStatus_Should_Return_Success() {
         Category categoryEntity = categoryEntity();
         given(categoryRepository.findById(ID)).willReturn(Optional.of(categoryEntity));
 
-        categoryService.changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
+        categoryService.updateCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
 
         assertTrue(categoryEntity.getActive());
 
@@ -175,11 +175,11 @@ class CategoryServiceTest {
     }
 
     @Test
-    void changeCategoryStatus_Should_Throw_ResourceNotFoundException() {
+    void updateCategoryStatus_Should_Throw_ResourceNotFoundException() {
         given(categoryRepository.findById(ID)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> categoryService.changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST));
+                () -> categoryService.updateCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST));
 
         then(categoryRepository).should(times(1)).findById(ID);
     }

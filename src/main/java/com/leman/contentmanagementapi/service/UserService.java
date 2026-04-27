@@ -12,6 +12,7 @@ import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.entity.User;
+import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.exception.BadRequestException;
 import com.leman.contentmanagementapi.exception.DuplicateResourceException;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
@@ -78,6 +79,22 @@ public class UserService {
     }
 
     @Transactional
+    public void updateRole(Long id, Role role) {
+        User user = findActiveUser(id);
+
+        user.setRole(role);
+        log.info("User role updated successfully with ID: {}", id);
+    }
+
+    @Transactional
+    public void updateUserStatus(Long id, Boolean enabled) {
+        User user = findExistingUser(id);
+
+        user.setEnabled(enabled);
+        log.info("User status updated successfully with ID: {}", id);
+    }
+
+    @Transactional
     public void deleteUser(Long id) {
         User user = findExistingUser(id);
 
@@ -87,6 +104,11 @@ public class UserService {
 
     private User findExistingUser(Long userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, userId));
+    }
+
+    private User findActiveUser(Long userId) {
+        return userRepository.findByIdAndEnabledTrue(userId)
                 .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, userId));
     }
 

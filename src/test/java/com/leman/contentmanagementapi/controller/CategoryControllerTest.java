@@ -108,8 +108,8 @@ class CategoryControllerTest {
     }
 
     @Test
-    void changeStatus_ShouldReturn_Success() throws Exception {
-        willDoNothing().given(categoryService).changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
+    void updateStatus_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(categoryService).updateCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/status")
                         .content(changeStatusTester.write(CATEGORY_STATUS_CHANGE_REQUEST).getJson())
@@ -117,7 +117,7 @@ class CategoryControllerTest {
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
-        then(categoryService).should(times(1)).changeCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
+        then(categoryService).should(times(1)).updateCategoryStatus(ID, CATEGORY_STATUS_CHANGE_REQUEST);
     }
 
 }

@@ -4,13 +4,14 @@ import static com.leman.contentmanagementapi.constant.AdminTestConstant.PAGEABLE
 import static com.leman.contentmanagementapi.constant.AdminTestConstant.USER_FILTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESPONSE;
+import static com.leman.contentmanagementapi.enums.Role.ADMIN;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +54,7 @@ class AdminControllerTest {
     private JacksonTester<PageableResponse<UserResponse>> pageableResponseTester;
 
     @Test
-    void getAll_ShouldReturn_Success() throws Exception {
+    void getAllUsers_ShouldReturn_Success() throws Exception {
         given(userService.findAllUsers(any(UserFilterRequest.class))).willReturn(PAGEABLE_USER_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH + "/search")
@@ -78,15 +79,29 @@ class AdminControllerTest {
     }
 
     @Test
-    void deleteUser_ShouldReturn_Success() throws Exception {
-        willDoNothing().given(userService).deleteUser(ID);
+    void updateUserRole_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(userService).updateRole(ID, ADMIN);
 
-        mockMvc.perform(delete(BASE_PATH + "/" + ID)
+        mockMvc.perform(patch(BASE_PATH + "/" + ID + "/role")
+                        .param("role", ADMIN.name())
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
-        then(userService).should(times(1)).deleteUser(ID);
+        then(userService).should(times(1)).updateRole(ID, ADMIN);
+    }
+
+    @Test
+    void updateUserStatus_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(userService).updateUserStatus(ID, false);
+
+        mockMvc.perform(patch(BASE_PATH + "/" + ID + "/status")
+                        .param("enabled", "false")
+                        .contentType("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        then(userService).should(times(1)).updateUserStatus(ID, false);
     }
 
 }

@@ -74,11 +74,11 @@ public class CategoryService {
     }
 
     @Transactional
-    public void changeCategoryStatus(Long id, CategoryStatusChangeRequest request) {
+    public void updateCategoryStatus(Long id, CategoryStatusChangeRequest request) {
         Category category = findExistingCategoryById(id);
 
         category.setActive(request.getActive());
-        log.info("Category status changed successfully with ID: {}", id);
+        log.info("Category status updated successfully with ID: {}", id);
     }
 
     private Category findExistingCategoryById(Long id) {
