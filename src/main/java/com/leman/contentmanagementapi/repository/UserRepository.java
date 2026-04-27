@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Override
     Page<User> findAll(Specification<User> specification, Pageable pageable);
 
+    Optional<User> findByIdAndEnabledTrue(Long id);
+
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String username);

@@ -7,6 +7,7 @@ import static com.leman.contentmanagementapi.constant.UserTestConstant.SAME_PASS
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_ID;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESPONSE;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_UPDATE_REQUEST;
+import static com.leman.contentmanagementapi.enums.Role.ADMIN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -208,6 +209,47 @@ class UserServiceTest {
         given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(USER_ID));
+
+        then(userRepository).should(times(1)).findById(USER_ID);
+    }
+
+    @Test
+    void updateRole_Should_Return_Success() {
+        User userEntity = UserTestConstant.userEntity();
+        given(userRepository.findByIdAndEnabledTrue(USER_ID)).willReturn(Optional.of(userEntity));
+
+        userService.updateRole(USER_ID, ADMIN);
+        assertEquals(ADMIN, userEntity.getRole());
+
+        then(userRepository).should(times(1)).findByIdAndEnabledTrue(USER_ID);
+    }
+
+    @Test
+    void updateRole_Should_Throw_ResourceNotFoundException_WhenUserNotFound() {
+        given(userRepository.findByIdAndEnabledTrue(USER_ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateRole(USER_ID, ADMIN));
+
+        then(userRepository).should(times(1)).findByIdAndEnabledTrue(USER_ID);
+    }
+
+    @Test
+    void updateUserStatus_Should_Return_Success() {
+        User userEntity = UserTestConstant.userEntity();
+        given(userRepository.findById(USER_ID)).willReturn(Optional.of(userEntity));
+
+        userService.updateUserStatus(USER_ID, false);
+        assertFalse(userEntity.isEnabled());
+
+        then(userRepository).should(times(1)).findById(USER_ID);
+        then(userRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void updateUserStatus_Should_Throw_ResourceNotFoundException_WhenUserNotFound() {
+        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.updateUserStatus(USER_ID, false));
 
         then(userRepository).should(times(1)).findById(USER_ID);
     }

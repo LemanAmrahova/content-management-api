@@ -52,9 +52,9 @@ public class CategoryController {
     }
 
     @PatchMapping("{id}/status")
-    public ResponseEntity<Void> changeStatus(@PathVariable @Positive Long id,
+    public ResponseEntity<Void> updateStatus(@PathVariable @Positive Long id,
                                              @RequestBody @Valid CategoryStatusChangeRequest request) {
-        categoryService.changeCategoryStatus(id, request);
+        categoryService.updateCategoryStatus(id, request);
 
         return ResponseEntity.noContent().build();
     }
