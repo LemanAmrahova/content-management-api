@@ -59,7 +59,7 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        User user = findUserByUsernameOrThrow(authentication);
+        User user = findUserByUsername(authentication);
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -74,19 +74,19 @@ public class AuthService {
         Long userId = jwtService.getUserIdFromToken(refreshToken);
         validateRefreshToken(refreshToken, userId);
 
-        User user = findUserByIdOrThrow(userId);
+        User user = findExistingUser(userId);
         String newAccessToken = jwtService.generateAccessToken(user);
         log.info("Access token refreshed for user ID: {}", userId);
 
         return tokenMapper.toLoginResponse(newAccessToken, refreshToken);
     }
 
-    private User findUserByIdOrThrow(Long userId) {
+    private User findExistingUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, userId));
     }
 
-    private User findUserByUsernameOrThrow(Authentication authentication) {
+    private User findUserByUsername(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, USERNAME, authentication.getName()));
     }

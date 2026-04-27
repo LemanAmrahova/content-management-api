@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorMessage {
 
+    public static final String UNAUTHORIZED_ERROR_MESSAGE = "Authentication required";
+    public static final String FORBIDDEN_ERROR_MESSAGE = "Access denied";
     public static final String INVALID_REFRESH_TOKEN = "Invalid or expired refresh token";
     public static final String TOKEN_MALFORMED = "Token format is invalid";
     public static final String RESOURCE_NOT_FOUND_ERROR_MESSAGE = "{0} not found with {1} - {2}";

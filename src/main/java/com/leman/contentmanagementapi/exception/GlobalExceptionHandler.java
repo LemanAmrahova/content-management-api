@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                                                                 HttpServletRequest request) {
         String message = MessageFormat.format(ErrorMessage.RESOURCE_NOT_FOUND_ERROR_MESSAGE,
                 ex.getEntity(), ex.getField(), ex.getValue());
-        String code = MessageFormat.format(ErrorCode.RESOURCE_NOT_FOUND, ex.getEntity().toUpperCase());
+        String code = MessageFormat.format(ErrorCode.RESOURCE_NOT_FOUND, ex.getEntity().toLowerCase());
 
         return buildErrorResponse(code, ErrorType.NOT_FOUND, message, request, HttpStatus.NOT_FOUND);
     }
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
                                                                  HttpServletRequest request) {
         String message = MessageFormat.format(ErrorMessage.RESOURCE_ALREADY_EXISTS_ERROR_MESSAGE,
                 ex.getEntity(), ex.getField(), ex.getValue());
-        String code = MessageFormat.format(ErrorCode.RESOURCE_ALREADY_EXISTS, ex.getEntity().toUpperCase());
+        String code = MessageFormat.format(ErrorCode.RESOURCE_ALREADY_EXISTS, ex.getEntity().toLowerCase());
 
         return buildErrorResponse(code, ErrorType.CONFLICT, message, request, HttpStatus.CONFLICT);
     }

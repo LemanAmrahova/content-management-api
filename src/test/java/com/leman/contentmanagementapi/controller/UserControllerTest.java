@@ -23,6 +23,8 @@ import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.security.CustomUserDetailsService;
 import com.leman.contentmanagementapi.security.JwtService;
+import com.leman.contentmanagementapi.security.handler.CustomAccessDeniedHandler;
+import com.leman.contentmanagementapi.security.handler.CustomAuthenticationEntryPoint;
 import com.leman.contentmanagementapi.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +37,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@Import(SecurityConfig.class)
 @AutoConfigureJsonTesters
+@Import({
+        SecurityConfig.class,
+        CustomAuthenticationEntryPoint.class,
+        CustomAccessDeniedHandler.class
+})
 class UserControllerTest {
 
     private static final String BASE_PATH = "/api/v1/users";

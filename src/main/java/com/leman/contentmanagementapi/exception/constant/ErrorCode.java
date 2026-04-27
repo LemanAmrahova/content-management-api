@@ -6,11 +6,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorCode {
 
-    public static final String UNAUTHORIZED = "UNAUTHORIZED";
-    public static final String BAD_REQUEST = "BAD_REQUEST";
-    public static final String RESOURCE_NOT_FOUND = "{0}_NOT_FOUND";
-    public static final String RESOURCE_ALREADY_EXISTS = "{0}_ALREADY_EXISTS";
-    public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
-    public static final String INVALID_JSON = "INVALID_JSON";
+    public static final String UNAUTHORIZED = "unauthorized";
+    public static final String FORBIDDEN = "forbidden";
+    public static final String BAD_REQUEST = "bad_request";
+    public static final String VALIDATION_ERROR = "validation_error";
+    public static final String INVALID_JSON = "invalid_json";
+    public static final String RESOURCE_NOT_FOUND = "{0}_not_found";
+    public static final String RESOURCE_ALREADY_EXISTS = "{0}_already_exists";
 
 }
