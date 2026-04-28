@@ -27,6 +27,7 @@ public final class AuthTestConstant {
     public static final String ACCESS_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInR5cGUiOiJhY2Nlc3MifQ";
     public static final String REFRESH_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInR5cGUiOiJyZWZyZXNoIn0";
     public static final String TOKEN_TYPE = "Bearer";
+    public static final String TOKEN_JTI = "test-jti-uuid";
 
     public static final RegisterRequest REGISTER_REQUEST = RegisterRequest.builder()
             .username(USERNAME)

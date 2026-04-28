@@ -1,5 +1,9 @@
 package com.leman.contentmanagementapi.controller;
 
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.HttpAttribute.AUTHORIZATION_PREFIX;
+import static com.leman.contentmanagementapi.constant.ApplicationConstant.HttpHeader;
+import static org.springframework.http.HttpStatus.CREATED;
+
 import com.leman.contentmanagementapi.dto.request.LoginRequest;
 import com.leman.contentmanagementapi.dto.request.RegisterRequest;
 import com.leman.contentmanagementapi.dto.response.LoginResponse;
@@ -14,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static com.leman.contentmanagementapi.constant.ApplicationConstant.HttpHeader;
-import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @Validated
@@ -39,6 +40,13 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(@RequestHeader(HttpHeader.REFRESH_TOKEN) String refreshToken) {
         return ResponseEntity.ok(authService.refreshToken(refreshToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(HttpHeader.AUTHORIZATION) String authHeader) {
+        String token = authHeader.substring(AUTHORIZATION_PREFIX.length());
+        authService.logout(token);
+        return ResponseEntity.noContent().build();
     }
 
 }

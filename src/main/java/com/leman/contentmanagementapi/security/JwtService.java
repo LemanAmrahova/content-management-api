@@ -11,7 +11,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +56,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .subject(String.valueOf(user.getId()))
+                .id(UUID.randomUUID().toString())
                 .claim(USERNAME_CLAIM, user.getUsername())
                 .claim(TOKEN_TYPE_CLAIM, type)
                 .issuedAt(now)
@@ -83,6 +86,14 @@ public class JwtService {
             log.error("Token validation failed: {}", e.getMessage());
             return false;
         }
+    }
+
+    public String getJtiFromToken(String token) {
+        return extractAllClaims(token).getId();
+    }
+
+    public Instant getExpirationInstant(String token) {
+        return extractAllClaims(token).getExpiration().toInstant();
     }
 
     private Claims extractAllClaims(String token) {

@@ -19,6 +19,9 @@ import com.leman.contentmanagementapi.mapper.TokenMapper;
 import com.leman.contentmanagementapi.mapper.UserMapper;
 import com.leman.contentmanagementapi.repository.UserRepository;
 import com.leman.contentmanagementapi.security.JwtService;
+import com.leman.contentmanagementapi.security.TokenBlacklistService;
+import java.time.Duration;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,6 +44,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -79,6 +83,15 @@ public class AuthService {
         log.info("Access token refreshed for user ID: {}", userId);
 
         return tokenMapper.toLoginResponse(newAccessToken, refreshToken);
+    }
+
+    public void logout(String token) {
+        String jti = jwtService.getJtiFromToken(token);
+        Instant expiration = jwtService.getExpirationInstant(token);
+        Duration ttl = Duration.between(Instant.now(),expiration);
+
+        tokenBlacklistService.blacklist(jti, ttl.toMillis());
+        log.info("User logged out successfully");
     }
 
     private User findExistingUser(Long userId) {
