@@ -23,6 +23,7 @@ import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import com.leman.contentmanagementapi.security.CustomUserDetailsService;
 import com.leman.contentmanagementapi.security.JwtService;
+import com.leman.contentmanagementapi.security.TokenBlacklistService;
 import com.leman.contentmanagementapi.security.handler.CustomAccessDeniedHandler;
 import com.leman.contentmanagementapi.security.handler.CustomAuthenticationEntryPoint;
 import com.leman.contentmanagementapi.service.UserService;
@@ -58,6 +59,9 @@ class UserControllerTest {
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
+
+    @MockitoBean
+    private TokenBlacklistService tokenBlacklistService;
 
     @Autowired
     private JacksonTester<PasswordChangeRequest> passwordChangeTester;

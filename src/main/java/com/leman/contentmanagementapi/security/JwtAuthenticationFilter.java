@@ -24,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -44,6 +45,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserById(userId);
 
                 if (jwtService.validateToken(jwt, userId)) {
+                    String jti = jwtService.getJtiFromToken(jwt);
+                    if (tokenBlacklistService.isBlacklisted(jti)) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
                     if (!userDetails.isEnabled()) {
                         filterChain.doFilter(request, response);
                         return;

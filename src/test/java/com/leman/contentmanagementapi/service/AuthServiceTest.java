@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
@@ -31,6 +33,8 @@ import com.leman.contentmanagementapi.mapper.TokenMapper;
 import com.leman.contentmanagementapi.mapper.UserMapper;
 import com.leman.contentmanagementapi.repository.UserRepository;
 import com.leman.contentmanagementapi.security.JwtService;
+import com.leman.contentmanagementapi.security.TokenBlacklistService;
+import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,6 +68,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private TokenBlacklistService tokenBlacklistService;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -223,6 +230,18 @@ class AuthServiceTest {
         then(jwtService).should(times(1)).getUserIdFromToken(REFRESH_TOKEN);
         then(jwtService).should(times(1)).validateToken(REFRESH_TOKEN, USER_ID);
         then(userRepository).should(times(1)).findById(USER_ID);
+    }
+
+    @Test
+    void logout_Should_Return_Success() {
+        given(jwtService.getJtiFromToken(ACCESS_TOKEN)).willReturn("test-jti");
+        given(jwtService.getExpirationInstant(ACCESS_TOKEN)).willReturn(Instant.now().plusSeconds(300));
+
+        authService.logout(ACCESS_TOKEN);
+
+        then(jwtService).should(times(1)).getJtiFromToken(ACCESS_TOKEN);
+        then(jwtService).should(times(1)).getExpirationInstant(ACCESS_TOKEN);
+        then(tokenBlacklistService).should(times(1)).blacklist(eq("test-jti"), anyLong());
     }
 
 }

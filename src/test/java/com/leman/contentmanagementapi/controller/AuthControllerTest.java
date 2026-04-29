@@ -1,5 +1,19 @@
 package com.leman.contentmanagementapi.controller;
 
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.ACCESS_TOKEN;
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.LOGIN_REQUEST;
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.LOGIN_RESPONSE;
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.REFRESH_TOKEN;
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.REGISTER_REQUEST;
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.USER_RESPONSE;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
 import com.leman.contentmanagementapi.constant.ApplicationConstant;
 import com.leman.contentmanagementapi.dto.request.LoginRequest;
@@ -14,18 +28,6 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static com.leman.contentmanagementapi.constant.AuthTestConstant.LOGIN_REQUEST;
-import static com.leman.contentmanagementapi.constant.AuthTestConstant.LOGIN_RESPONSE;
-import static com.leman.contentmanagementapi.constant.AuthTestConstant.REFRESH_TOKEN;
-import static com.leman.contentmanagementapi.constant.AuthTestConstant.REGISTER_REQUEST;
-import static com.leman.contentmanagementapi.constant.AuthTestConstant.USER_RESPONSE;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExcludeSecurityWebMvcTest(controllers = AuthController.class)
 @AutoConfigureJsonTesters
@@ -91,6 +93,19 @@ class AuthControllerTest {
                 .andExpect(content().json(loginResponseTester.write(LOGIN_RESPONSE).getJson()));
 
         then(authService).should(times(1)).refreshToken(REFRESH_TOKEN);
+    }
+
+    @Test
+    void logout_ShouldReturn_Success() throws Exception {
+        willDoNothing().given(authService).logout(ACCESS_TOKEN);
+
+        mockMvc.perform(post(BASE_PATH + "/logout")
+                        .header(ApplicationConstant.HttpHeader.AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                        .contentType("application/json"))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        then(authService).should(times(1)).logout(ACCESS_TOKEN);
     }
 
 }
