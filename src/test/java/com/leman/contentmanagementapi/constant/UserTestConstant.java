@@ -1,5 +1,8 @@
 package com.leman.contentmanagementapi.constant;
 
+import static com.leman.contentmanagementapi.constant.AuthTestConstant.PASSWORD;
+import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+
 import com.leman.contentmanagementapi.dto.request.PasswordChangeRequest;
 import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
@@ -47,6 +50,17 @@ public final class UserTestConstant {
                 .enabled(true)
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
+                .build();
+    }
+
+    public static User adminEntity() {
+        return User.builder()
+                .id(ID)
+                .username(USERNAME)
+                .email(EMAIL)
+                .password(PASSWORD)
+                .role(Role.ADMIN)
+                .enabled(true)
                 .build();
     }
 

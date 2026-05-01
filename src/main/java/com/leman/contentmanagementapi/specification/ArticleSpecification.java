@@ -18,6 +18,7 @@ public class ArticleSpecification {
                 equalIfNotNull(cb, root.get("published"), request.getPublished()),
                 equalIfNotNull(cb, root.get("active"), request.getActive()),
                 equalIfNotNull(cb, root.get("category").get("id"), request.getCategoryId()),
+                equalIfNotNull(cb, root.get("author").get("id"), request.getAuthorId()),
                 likeIfNotBlank(cb, root.get("title"), request.getTitle()),
                 likeIfNotBlank(cb, root.get("content"), request.getContent())
         );

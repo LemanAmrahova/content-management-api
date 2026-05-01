@@ -18,6 +18,7 @@ import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.entity.Category;
+import com.leman.contentmanagementapi.entity.User;
 import java.util.List;
 
 public final class ArticleTestConstant {
@@ -28,7 +29,9 @@ public final class ArticleTestConstant {
     public static final String TITLE = "TITLE";
     public static final String CONTENT = "CONTENT";
     public static final Category CATEGORY = CategoryTestConstant.categoryEntity();
+    public static final User AUTHOR = UserTestConstant.userEntity();
     public static final Long CATEGORY_ID = 1L;
+    public static final Long AUTHOR_ID = 1L;
 
     public static final ArticleCreateRequest ARTICLE_CREATE_REQUEST = ArticleCreateRequest.builder()
             .title(TITLE)
@@ -40,6 +43,7 @@ public final class ArticleTestConstant {
             .title(TITLE)
             .content(CONTENT)
             .categoryId(CATEGORY_ID)
+            .authorId(AUTHOR_ID)
             .published(false)
             .active(true)
             .page(PAGE)
@@ -60,6 +64,7 @@ public final class ArticleTestConstant {
                 .title(TITLE)
                 .content(CONTENT)
                 .category(CATEGORY)
+                .author(AUTHOR)
                 .active(true)
                 .published(false)
                 .build();
@@ -70,6 +75,7 @@ public final class ArticleTestConstant {
             .title(TITLE)
             .content(CONTENT)
             .categoryId(CATEGORY_ID)
+            .authorId(AUTHOR_ID)
             .active(true)
             .published(false)
             .build();
@@ -80,6 +86,8 @@ public final class ArticleTestConstant {
             .content(CONTENT)
             .categoryId(CATEGORY_ID)
             .categoryName(CATEGORY.getName())
+            .authorId(AUTHOR_ID)
+            .authorUsername(AUTHOR.getUsername())
             .active(true)
             .published(false)
             .build();

@@ -15,5 +15,6 @@ public class ErrorMessage {
     public static final String INVALID_JSON_ERROR_MESSAGE = "Malformed JSON request";
     public static final String INVALID_CURRENT_PASSWORD_ERROR_MESSAGE= "Current password is incorrect";
     public static final String SAME_PASSWORD_ERROR_MESSAGE = "New password must be different from current password";
+    public static final String INVALID_CREDENTIALS_ERROR_MESSAGE = "Invalid username or password";
 
 }
