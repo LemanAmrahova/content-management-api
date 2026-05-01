@@ -3,6 +3,7 @@ package com.leman.contentmanagementapi.controller;
 import static com.leman.contentmanagementapi.constant.AdminTestConstant.PAGEABLE_USER_RESPONSE;
 import static com.leman.contentmanagementapi.constant.AdminTestConstant.USER_FILTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static com.leman.contentmanagementapi.constant.UserTestConstant.ADMIN_PRINCIPAL;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_RESPONSE;
 import static com.leman.contentmanagementapi.enums.Role.ADMIN;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,13 +11,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
 import com.leman.contentmanagementapi.dto.request.UserFilterRequest;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
@@ -24,14 +25,14 @@ import com.leman.contentmanagementapi.security.JwtService;
 import com.leman.contentmanagementapi.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@ExcludeSecurityWebMvcTest(controllers = AdminController.class)
-@AutoConfigureJsonTesters
-class AdminControllerTest {
+@WebMvcTest(AdminController.class)
+class AdminControllerTest extends BaseControllerTest {
 
     private static final String BASE_PATH = "/api/v1/admin/users";
 
@@ -40,9 +41,6 @@ class AdminControllerTest {
 
     @MockitoBean
     private UserService userService;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @Autowired
     private JacksonTester<UserFilterRequest> filterTester;
@@ -58,6 +56,8 @@ class AdminControllerTest {
         given(userService.findAllUsers(any(UserFilterRequest.class))).willReturn(PAGEABLE_USER_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH + "/search")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                ADMIN_PRINCIPAL, null, ADMIN_PRINCIPAL.getAuthorities())))
                         .content(filterTester.write(USER_FILTER_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -71,6 +71,8 @@ class AdminControllerTest {
         given(userService.findUserById(ID)).willReturn(USER_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH + "/" + ID)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                ADMIN_PRINCIPAL, null, ADMIN_PRINCIPAL.getAuthorities())))
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(USER_RESPONSE).getJson()));
@@ -83,6 +85,8 @@ class AdminControllerTest {
         willDoNothing().given(userService).updateRole(ID, ADMIN);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/role")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                ADMIN_PRINCIPAL, null, ADMIN_PRINCIPAL.getAuthorities())))
                         .param("role", ADMIN.name())
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())
@@ -96,6 +100,8 @@ class AdminControllerTest {
         willDoNothing().given(userService).updateUserStatus(ID, false);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/status")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                ADMIN_PRINCIPAL, null, ADMIN_PRINCIPAL.getAuthorities())))
                         .param("enabled", "false")
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())

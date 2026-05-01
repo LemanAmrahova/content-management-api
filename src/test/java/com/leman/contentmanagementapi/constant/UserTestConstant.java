@@ -76,4 +76,6 @@ public final class UserTestConstant {
 
     public static final UserPrincipal USER_PRINCIPAL = new UserPrincipal(userEntity());
 
+    public static final UserPrincipal ADMIN_PRINCIPAL = new UserPrincipal(adminEntity());
+
 }
