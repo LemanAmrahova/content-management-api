@@ -24,6 +24,9 @@ public class ArticleFilterRequest extends PageableRequest {
     @Positive
     private Long categoryId;
 
+    @Positive
+    private Long authorId;
+
     private Boolean published;
     private Boolean active;
 

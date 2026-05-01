@@ -4,11 +4,14 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_FILTER_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
+import static com.leman.contentmanagementapi.constant.ArticleTestConstant.AUTHOR;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.articleEntity;
 import static com.leman.contentmanagementapi.constant.CategoryTestConstant.CATEGORY_RESPONSE;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static com.leman.contentmanagementapi.constant.UserTestConstant.adminEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -17,6 +20,8 @@ import static org.mockito.Mockito.mock;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
+import com.leman.contentmanagementapi.entity.User;
+import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
 import java.util.Optional;
@@ -53,9 +58,9 @@ class ArticleServiceTest {
                 .willReturn(CATEGORY_RESPONSE);
         given(articleRepository.save(any(Article.class))).willReturn(articleEntity);
 
-        ArticleResponse result = articleService.createArticle(ARTICLE_CREATE_REQUEST);
-        assertThat(result).isEqualTo(ARTICLE_RESPONSE);
+        ArticleResponse result = articleService.createArticle(ARTICLE_CREATE_REQUEST, AUTHOR);
 
+        assertThat(result).isEqualTo(ARTICLE_RESPONSE);
         then(categoryService).should().findActiveCategoryById(ARTICLE_CREATE_REQUEST.getCategoryId());
         then(articleRepository).should().save(any(Article.class));
     }
@@ -89,12 +94,24 @@ class ArticleServiceTest {
         given(categoryService.findActiveCategoryById(ARTICLE_UPDATE_REQUEST.getCategoryId()))
                 .willReturn(CATEGORY_RESPONSE);
 
-        ArticleResponse result = articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST);
+        ArticleResponse result = articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST, ID);
+
         assertThat(result).isNotNull();
         assertEquals(ARTICLE_RESPONSE, result);
-
         then(articleRepository).should().findByIdAndActiveTrue(ID);
         then(categoryService).should().findActiveCategoryById(ARTICLE_UPDATE_REQUEST.getCategoryId());
+    }
+
+    @Test
+    void updateArticle_Should_Throw_ResourceNotFoundException_WhenNotOwner() {
+        Article articleEntity = articleEntity();
+        given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST, 999L));
+
+        then(articleRepository).should().findByIdAndActiveTrue(ID);
+        then(categoryService).shouldHaveNoInteractions();
     }
 
     @Test
@@ -110,15 +127,27 @@ class ArticleServiceTest {
     }
 
     @Test
-    void deleteArticle_ShouldReturn_Success() {
+    void deleteArticle_ShouldReturn_Success_WhenAuthor() {
         Article articleEntity = articleEntity();
         given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
 
-        articleService.deleteArticle(ID);
+        articleService.deleteArticle(ID, AUTHOR);
+
+        assertThat(articleEntity.getActive()).isFalse();
+        then(articleRepository).should().findByIdAndActiveTrue(ID);
+        then(articleRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void deleteArticle_Should_Return_Success_WhenAdmin() {
+        Article articleEntity = articleEntity();
+        User adminUser = adminEntity();
+        given(articleRepository.findByIdAndActiveTrue(ID)).willReturn(Optional.of(articleEntity));
+
+        articleService.deleteArticle(ID, adminUser);
         assertThat(articleEntity.getActive()).isFalse();
 
         then(articleRepository).should().findByIdAndActiveTrue(ID);
-        then(articleRepository).shouldHaveNoMoreInteractions();
     }
 
 }

@@ -7,11 +7,13 @@ import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
+import com.leman.contentmanagementapi.security.UserPrincipal;
 import com.leman.contentmanagementapi.service.ArticleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +34,9 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> create(@RequestBody @Valid ArticleCreateRequest request) {
-        return ResponseEntity.status(CREATED).body(articleService.createArticle(request));
+    public ResponseEntity<ArticleResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                  @RequestBody @Valid ArticleCreateRequest request) {
+        return ResponseEntity.status(CREATED).body(articleService.createArticle(request, userPrincipal.getUser()));
     }
 
     @PostMapping("/search")
@@ -47,9 +50,10 @@ public class ArticleController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ArticleResponse> update(@PathVariable @Positive Long id,
+    public ResponseEntity<ArticleResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                  @PathVariable @Positive Long id,
                                                   @RequestBody @Valid ArticleUpdateRequest request) {
-        return ResponseEntity.ok(articleService.updateArticle(id, request));
+        return ResponseEntity.ok(articleService.updateArticle(id, request, userPrincipal.getUser().getId()));
     }
 
     @PatchMapping("{id}/publish")
@@ -60,8 +64,9 @@ public class ArticleController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable @Positive Long id) {
-        articleService.deleteArticle(id);
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                       @PathVariable @Positive Long id) {
+        articleService.deleteArticle(id, userPrincipal.getUser());
 
         return ResponseEntity.noContent().build();
     }

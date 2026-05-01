@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,20 +20,30 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "article")
 public class Article extends BaseEntity {
 
+    @NotNull
     @Column(nullable = false)
     private String title;
 
+    @NotNull
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean active;
 
+    @NotNull
     @Column(name = "is_published", nullable = false)
     private Boolean published;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
 }

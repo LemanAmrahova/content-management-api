@@ -7,11 +7,14 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_PRINCIPAL;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -20,22 +23,36 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.leman.contentmanagementapi.annotation.ExcludeSecurityWebMvcTest;
+import com.leman.contentmanagementapi.config.SecurityConfig;
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
+import com.leman.contentmanagementapi.entity.User;
+import com.leman.contentmanagementapi.security.CustomUserDetailsService;
+import com.leman.contentmanagementapi.security.JwtService;
+import com.leman.contentmanagementapi.security.TokenBlacklistService;
+import com.leman.contentmanagementapi.security.handler.CustomAccessDeniedHandler;
+import com.leman.contentmanagementapi.security.handler.CustomAuthenticationEntryPoint;
 import com.leman.contentmanagementapi.service.ArticleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@ExcludeSecurityWebMvcTest(controllers = ArticleController.class)
+@WebMvcTest(ArticleController.class)
 @AutoConfigureJsonTesters
+@Import({
+        SecurityConfig.class,
+        CustomAuthenticationEntryPoint.class,
+        CustomAccessDeniedHandler.class
+})
 class ArticleControllerTest {
 
     private static final String BASE_PATH = "/api/v1/articles";
@@ -45,6 +62,15 @@ class ArticleControllerTest {
 
     @MockitoBean
     private ArticleService articleService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockitoBean
+    private TokenBlacklistService tokenBlacklistService;
 
     @Autowired
     private JacksonTester<ArticleCreateRequest> createTester;
@@ -66,15 +92,17 @@ class ArticleControllerTest {
 
     @Test
     void create_ShouldReturn_Success() throws Exception {
-        given(articleService.createArticle(ARTICLE_CREATE_REQUEST)).willReturn(ARTICLE_RESPONSE);
+        given(articleService.createArticle(eq(ARTICLE_CREATE_REQUEST), any(User.class))).willReturn(ARTICLE_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
                         .content(createTester.write(ARTICLE_CREATE_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
 
-        then(articleService).should(times(1)).createArticle(ARTICLE_CREATE_REQUEST);
+        then(articleService).should(times(1)).createArticle(eq(ARTICLE_CREATE_REQUEST), any(User.class));
     }
 
     @Test
@@ -82,6 +110,8 @@ class ArticleControllerTest {
         given(articleService.findAllArticles(any(ArticleFilterRequest.class))).willReturn(PAGEABLE_ARTICLE_RESPONSE);
 
         mockMvc.perform(post(BASE_PATH + "/search")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
                         .content(filterTester.write(ARTICLE_FILTER_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
@@ -95,6 +125,8 @@ class ArticleControllerTest {
         given(articleService.findArticleById(ID)).willReturn(ARTICLE_DETAIL_RESPONSE);
 
         mockMvc.perform(get(BASE_PATH + "/" + ID)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(detailResponseTester.write(ARTICLE_DETAIL_RESPONSE).getJson()));
@@ -104,15 +136,18 @@ class ArticleControllerTest {
 
     @Test
     void update_ShouldReturn_Success() throws Exception {
-        given(articleService.updateArticle(ID, ARTICLE_UPDATE_REQUEST)).willReturn(ARTICLE_RESPONSE);
+        given(articleService.updateArticle(eq(ID), eq(ARTICLE_UPDATE_REQUEST), any(Long.class))).willReturn(
+                ARTICLE_RESPONSE);
 
         mockMvc.perform(put(BASE_PATH + "/" + ID)
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
                         .content(updateTester.write(ARTICLE_UPDATE_REQUEST).getJson())
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(responseTester.write(ARTICLE_RESPONSE).getJson()));
 
-        then(articleService).should(times(1)).updateArticle(ID, ARTICLE_UPDATE_REQUEST);
+        then(articleService).should(times(1)).updateArticle(eq(ID), eq(ARTICLE_UPDATE_REQUEST), any(Long.class));
     }
 
     @Test
@@ -120,7 +155,9 @@ class ArticleControllerTest {
         willDoNothing().given(articleService).publishArticle(ID);
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/publish")
-                        .content("application/json"))
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
+                        .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
@@ -129,14 +166,16 @@ class ArticleControllerTest {
 
     @Test
     void delete_ShouldReturn_Success() throws Exception {
-        willDoNothing().given(articleService).deleteArticle(ID);
+        willDoNothing().given(articleService).deleteArticle(eq(ID), any(User.class));
 
         mockMvc.perform(delete(BASE_PATH + "/" + ID)
-                        .content("application/json"))
+                        .with(authentication(new UsernamePasswordAuthenticationToken(
+                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
+                        .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
-        then(articleService).should(times(1)).deleteArticle(ID);
+        then(articleService).should(times(1)).deleteArticle(eq(ID), any(User.class));
     }
 
 }

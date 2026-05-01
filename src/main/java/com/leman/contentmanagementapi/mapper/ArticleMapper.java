@@ -26,10 +26,13 @@ public interface ArticleMapper {
     Article toEntity(ArticleCreateRequest request);
 
     @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "authorId", source = "author.id")
     ArticleResponse toResponse(Article article);
 
     @Mapping(target = "categoryId", source = "category.id")
     @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "authorId", source = "author.id")
+    @Mapping(target = "authorUsername", source = "author.username")
     ArticleResponse toDetailResponse(Article article);
 
     default PageableResponse<ArticleResponse> toPageableResponse(Page<Article> articles) {

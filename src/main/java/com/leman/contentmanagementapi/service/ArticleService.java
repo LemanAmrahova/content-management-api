@@ -1,6 +1,7 @@
 package com.leman.contentmanagementapi.service;
 
 import static com.leman.contentmanagementapi.constant.ApplicationConstant.Common.ID;
+import static com.leman.contentmanagementapi.enums.Role.ADMIN;
 
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
@@ -8,6 +9,7 @@ import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.Article;
+import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.exception.ResourceNotFoundException;
 import com.leman.contentmanagementapi.mapper.ArticleMapper;
 import com.leman.contentmanagementapi.repository.ArticleRepository;
@@ -33,10 +35,12 @@ public class ArticleService {
     private final CategoryService categoryService;
 
     @Transactional
-    public ArticleResponse createArticle(ArticleCreateRequest request) {
+    public ArticleResponse createArticle(ArticleCreateRequest request, User author) {
         categoryService.findActiveCategoryById(request.getCategoryId());
 
-        Article saved = articleRepository.save(articleMapper.toEntity(request));
+        Article article = articleMapper.toEntity(request);
+        article.setAuthor(author);
+        Article saved = articleRepository.save(article);
         log.info("Article created successfully with ID: {}", saved.getId());
 
         return articleMapper.toResponse(saved);
@@ -56,8 +60,9 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleResponse updateArticle(Long id, ArticleUpdateRequest request) {
+    public ArticleResponse updateArticle(Long id, ArticleUpdateRequest request, Long userId) {
         Article article = findActiveArticleById(id);
+        validateOwnership(article, userId);
 
         categoryService.findActiveCategoryById(request.getCategoryId());
 
@@ -78,8 +83,12 @@ public class ArticleService {
     }
 
     @Transactional
-    public void deleteArticle(Long id) {
+    public void deleteArticle(Long id, User user) {
         Article article = findActiveArticleById(id);
+
+        if (user.getRole() != ADMIN) {
+            validateOwnership(article, user.getId());
+        }
 
         article.setActive(false);
         log.info("Article deleted successfully with ID: {}", id);
@@ -88,6 +97,12 @@ public class ArticleService {
     private Article findActiveArticleById(Long id) {
         return articleRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> ResourceNotFoundException.of(ENTITY, ID, id));
+    }
+
+    private void validateOwnership(Article article, Long userId) {
+        if (!article.getAuthor().getId().equals(userId)) {
+            throw ResourceNotFoundException.of(ENTITY, ID, article.getId());
+        }
     }
 
 }
