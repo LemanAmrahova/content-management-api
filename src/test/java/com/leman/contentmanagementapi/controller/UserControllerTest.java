@@ -17,34 +17,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.leman.contentmanagementapi.config.SecurityConfig;
 import com.leman.contentmanagementapi.dto.request.PasswordChangeRequest;
 import com.leman.contentmanagementapi.dto.request.UserUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
-import com.leman.contentmanagementapi.security.CustomUserDetailsService;
 import com.leman.contentmanagementapi.security.JwtService;
-import com.leman.contentmanagementapi.security.TokenBlacklistService;
-import com.leman.contentmanagementapi.security.handler.CustomAccessDeniedHandler;
-import com.leman.contentmanagementapi.security.handler.CustomAuthenticationEntryPoint;
 import com.leman.contentmanagementapi.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@AutoConfigureJsonTesters
-@Import({
-        SecurityConfig.class,
-        CustomAuthenticationEntryPoint.class,
-        CustomAccessDeniedHandler.class
-})
-class UserControllerTest {
+class UserControllerTest extends BaseControllerTest {
 
     private static final String BASE_PATH = "/api/v1/users";
 
@@ -53,15 +40,6 @@ class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
-
-    @MockitoBean
-    private JwtService jwtService;
-
-    @MockitoBean
-    private CustomUserDetailsService customUserDetailsService;
-
-    @MockitoBean
-    private TokenBlacklistService tokenBlacklistService;
 
     @Autowired
     private JacksonTester<PasswordChangeRequest> passwordChangeTester;

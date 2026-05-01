@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,6 +57,7 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.updateArticle(id, request, userPrincipal.getUser().getId()));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("{id}/publish")
     public ResponseEntity<Void> publish(@PathVariable @Positive Long id) {
         articleService.publishArticle(id);

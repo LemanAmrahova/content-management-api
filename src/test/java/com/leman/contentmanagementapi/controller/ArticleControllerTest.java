@@ -7,6 +7,7 @@ import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICL
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.ARTICLE_UPDATE_REQUEST;
 import static com.leman.contentmanagementapi.constant.ArticleTestConstant.PAGEABLE_ARTICLE_RESPONSE;
 import static com.leman.contentmanagementapi.constant.TestConstant.ID;
+import static com.leman.contentmanagementapi.constant.UserTestConstant.ADMIN_PRINCIPAL;
 import static com.leman.contentmanagementapi.constant.UserTestConstant.USER_PRINCIPAL;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,37 +24,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.leman.contentmanagementapi.config.SecurityConfig;
 import com.leman.contentmanagementapi.dto.request.ArticleCreateRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleFilterRequest;
 import com.leman.contentmanagementapi.dto.request.ArticleUpdateRequest;
 import com.leman.contentmanagementapi.dto.response.ArticleResponse;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.entity.User;
-import com.leman.contentmanagementapi.security.CustomUserDetailsService;
 import com.leman.contentmanagementapi.security.JwtService;
-import com.leman.contentmanagementapi.security.TokenBlacklistService;
-import com.leman.contentmanagementapi.security.handler.CustomAccessDeniedHandler;
-import com.leman.contentmanagementapi.security.handler.CustomAuthenticationEntryPoint;
 import com.leman.contentmanagementapi.service.ArticleService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ArticleController.class)
-@AutoConfigureJsonTesters
-@Import({
-        SecurityConfig.class,
-        CustomAuthenticationEntryPoint.class,
-        CustomAccessDeniedHandler.class
-})
-class ArticleControllerTest {
+class ArticleControllerTest extends BaseControllerTest {
 
     private static final String BASE_PATH = "/api/v1/articles";
 
@@ -62,15 +50,6 @@ class ArticleControllerTest {
 
     @MockitoBean
     private ArticleService articleService;
-
-    @MockitoBean
-    private JwtService jwtService;
-
-    @MockitoBean
-    private CustomUserDetailsService customUserDetailsService;
-
-    @MockitoBean
-    private TokenBlacklistService tokenBlacklistService;
 
     @Autowired
     private JacksonTester<ArticleCreateRequest> createTester;
@@ -156,7 +135,7 @@ class ArticleControllerTest {
 
         mockMvc.perform(patch(BASE_PATH + "/" + ID + "/publish")
                         .with(authentication(new UsernamePasswordAuthenticationToken(
-                                USER_PRINCIPAL, null, USER_PRINCIPAL.getAuthorities())))
+                                ADMIN_PRINCIPAL, null, ADMIN_PRINCIPAL.getAuthorities())))
                         .contentType("application/json"))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
