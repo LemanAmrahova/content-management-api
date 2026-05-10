@@ -10,11 +10,11 @@ import com.leman.contentmanagementapi.entity.User;
 import com.leman.contentmanagementapi.enums.Role;
 import com.leman.contentmanagementapi.security.UserPrincipal;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserTestConstant {
-
-    private UserTestConstant() {
-    }
 
     public static final Long USER_ID = 1L;
     public static final String USERNAME = "testuser";

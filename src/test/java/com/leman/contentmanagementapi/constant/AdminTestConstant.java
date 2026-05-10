@@ -15,7 +15,10 @@ import com.leman.contentmanagementapi.dto.request.UserFilterRequest;
 import com.leman.contentmanagementapi.dto.response.PageableResponse;
 import com.leman.contentmanagementapi.dto.response.UserResponse;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AdminTestConstant {
 
     public static final UserFilterRequest USER_FILTER_REQUEST = UserFilterRequest.builder()
