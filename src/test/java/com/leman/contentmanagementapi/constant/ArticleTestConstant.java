@@ -20,11 +20,11 @@ import com.leman.contentmanagementapi.entity.Article;
 import com.leman.contentmanagementapi.entity.Category;
 import com.leman.contentmanagementapi.entity.User;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ArticleTestConstant {
-
-    private ArticleTestConstant() {
-    }
 
     public static final String TITLE = "TITLE";
     public static final String CONTENT = "CONTENT";

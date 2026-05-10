@@ -1,11 +1,11 @@
 package com.leman.contentmanagementapi.constant;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TestConstant {
-
-    private TestConstant() {
-    }
 
     public static final Long ID = 1L;
     public static final Integer PAGE = 0;
